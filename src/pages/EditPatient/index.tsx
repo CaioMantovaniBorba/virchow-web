@@ -73,18 +73,23 @@ function EditPatient() {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: patient?.nome,
+      estadoCivil: patient?.estadoCivil.descricao,
       sexo: patient?.sexo,
-      datNascimento: patient?.datNascimento.slice(0, 10),
-      profissao: patient?.profissao
+      datNascimento: patient?.datNascimento?.slice(0, 10),
+      profissao: patient?.profissao,
+      procedencia: patient?.procedencia
     },
   });
+
+  console.log(patient);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     if (
       data.name === patient?.nome &&
       data.sexo === patient.sexo &&
-      data.datNascimento === patient.datNascimento.slice(0, 10) &&
-      data.profissao === patient.profissao
+      data.datNascimento === patient.datNascimento?.slice(0, 10) &&
+      data.profissao === patient.profissao &&
+      data.procedencia === patient.procedencia
     ) {
       return alert("Nenhum dado do paciente foi alterado!");
     }
@@ -100,17 +105,19 @@ function EditPatient() {
     setLoading(true);
 
     const pacienteData = {
-      paciente: {
-        id: patient?.id,
-        nome: data.name.toUpperCase(),
-        sexo: data.sexo,
-        datNascimento: data.datNascimento,
-        profissao: data.profissao.toUpperCase(),
+      id: patient?.id,
+      nome: data.name.toUpperCase(),
+      estadoCivil: {
+        id: patient?.estadoCivil.id,
+        descricao: patient?.estadoCivil.descricao
       },
-      seq_cliente: user.seq_cliente
+      sexo: data.sexo,
+      datNascimento: data.datNascimento,
+      profissao: data.profissao.toUpperCase(),
+      procedencia: data.procedencia.toUpperCase()
     }
 
-    api.put("/pacientes", pacienteData)
+    api.put(`/Paciente/${patient?.id}`, pacienteData)
       .then(() => {
         toast.success("Paciente atualizado com sucesso!", {
           position: "top-right",
@@ -155,7 +162,7 @@ function EditPatient() {
                       name="name"
                       render={({ field }) => (
                         <FormItem className='text-left'>
-                          <FormLabel className='text-lg'>Nome Paciente *</FormLabel>
+                          <FormLabel className='text-lg'>Nome Paciente</FormLabel>
                           <FormControl>
                             <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
@@ -187,7 +194,7 @@ function EditPatient() {
                       name="sexo"
                       render={({ field }) => (
                         <FormItem className='text-left'>
-                          <FormLabel className='text-lg'>Sexo *</FormLabel>
+                          <FormLabel className='text-lg'>Sexo</FormLabel>
                           <FormControl>
                             <Select onValueChange={field.onChange}>
                               <SelectTrigger>
@@ -195,7 +202,7 @@ function EditPatient() {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectGroup>
-                                  <SelectLabel>Sexo *</SelectLabel>
+                                  <SelectLabel>Sexo</SelectLabel>
                                   <SelectItem value="M">Masculino</SelectItem>
                                   <SelectItem value="F">Feminino</SelectItem>
                                 </SelectGroup>
@@ -216,7 +223,7 @@ function EditPatient() {
                       name="datNascimento"
                       render={({ field }) => (
                         <FormItem className='text-left'>
-                          <FormLabel className='text-lg max-sm:text-sm'>Data Nascimento *</FormLabel>
+                          <FormLabel className='text-lg max-sm:text-sm'>Data Nascimento</FormLabel>
                           <FormControl>
                             <Input
                               className="pl-2 w-full"
