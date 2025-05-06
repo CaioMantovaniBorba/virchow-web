@@ -92,16 +92,16 @@ function RegisterPatient() {
     setLoading(true);
 
     const pacienteData = {
-      paciente: {
-        nome: data.name.toUpperCase(),
-        estadoCivil: data.estadoCivil,
-        sexo: data.sexo,
-        datNascimento: data.datNascimento,
-        profissao: data.profissao.toUpperCase(),
-        procedencia: data.profissao.toUpperCase()
+      nome: data.name.toUpperCase(),
+      estadoCivil: {
+        id: 1,
+        descricao: "Solteiro"
       },
+      sexo: data.sexo,
+      datNascimento: `${data.datNascimento}T00:00:00.000Z`,
+      profissao: data.profissao.toUpperCase(),
+      procedencia: data.procedencia.toUpperCase()
     }
-
     api.post("/Paciente", pacienteData)
       .then(() => {
         toast.success("Paciente cadastrado com sucesso!", {
@@ -151,7 +151,7 @@ function RegisterPatient() {
                       name="name"
                       render={({ field }) => (
                         <FormItem className='text-left'>
-                          <FormLabel className='text-lg'>Nome Paciente *</FormLabel>
+                          <FormLabel className='text-lg'>Nome Paciente</FormLabel>
                           <FormControl>
                             <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
@@ -183,7 +183,7 @@ function RegisterPatient() {
                       name="sexo"
                       render={({ field }) => (
                         <FormItem className='text-left'>
-                          <FormLabel className='text-lg'>Sexo *</FormLabel>
+                          <FormLabel className='text-lg'>Sexo</FormLabel>
                           <FormControl>
                             <Select onValueChange={field.onChange}>
                               <SelectTrigger>
@@ -191,7 +191,7 @@ function RegisterPatient() {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectGroup>
-                                  <SelectLabel>Sexo *</SelectLabel>
+                                  <SelectLabel>Sexo</SelectLabel>
                                   <SelectItem value="M">Masculino</SelectItem>
                                   <SelectItem value="F">Feminino</SelectItem>
                                 </SelectGroup>
@@ -213,7 +213,7 @@ function RegisterPatient() {
                       name="datNascimento"
                       render={({ field }) => (
                         <FormItem className='text-left'>
-                          <FormLabel className='text-lg max-sm:text-sm'>Data Nascimento *</FormLabel>
+                          <FormLabel className='text-lg max-sm:text-sm'>Data Nascimento</FormLabel>
                           <FormControl>
                             <Input
                               className="pl-2 w-full"

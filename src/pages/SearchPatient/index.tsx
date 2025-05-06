@@ -218,7 +218,7 @@ function SearchPatient() {
 
       <div className="flex flex-col justify-center w-[90%] space-y-8">
         <div className="flex items-center w-full h-[50px] rounded-sm bg-gray-200 border border-gray-300">
-          <span className="ml-2 text-xl font-bold">CADASTRO DE PACIENTE</span>
+          <span className="ml-2 text-xl font-bold">CADASTROS DE PACIENTES</span>
         </div>
 
         <Button className="flex w-[200px] bg-[#0C647C] hover:bg-[#0C647C]/80" onClick={() => navigate("/cadastrarpaciente")}>
