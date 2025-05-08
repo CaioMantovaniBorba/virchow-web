@@ -3,7 +3,6 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useNavigate } from "react-router-dom";
-import { PersonIcon, LockClosedIcon } from '@radix-ui/react-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import { Loader2 } from "lucide-react";
 
@@ -21,6 +20,10 @@ import { UserContext } from "@/contexts/user";
 
 import api from "@/services/api";
 
+import Front from "@/assets/front.png";
+import Behind from "@/assets/behind.png";
+import Virchow from "@/assets/virchow.png";
+
 const FormSchema = z.object({
   login: z.string().min(4, {
     message: "Insira seu usuário.",
@@ -36,12 +39,12 @@ function Login() {
   const navigate = useNavigate();
   const { setUser } = useContext(UserContext);
 
-  // useEffect(() => {
-  //   const signed = localStorage.getItem("token");
-  //   if (signed) {
-  //     navigate("incluirlaudo");
-  //   }
-  // }, []);
+  useEffect(() => {
+    const signed = localStorage.getItem("token");
+    if (signed) {
+      navigate("incluirlaudo");
+    }
+  }, []);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -59,75 +62,83 @@ function Login() {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("usuario", JSON.stringify(response.data.usuario));
         navigate("/cadastropaciente");
-        setLoading(false);
       })
       .catch(() => {
         toast.error("Erro ao realizar login!", {
           position: "top-right",
         });
-        setLoading(false);
-      }
-      )
+      })
+      .finally(() => setLoading(false))
   }
 
   return (
-    <div className="flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat min-w-full min-h-screen">
+    <div className="flex min-w-full min-h-screen">
       <ToastContainer autoClose={2000} />
-      <h1 className="text-3xl text-center font-extrabold w-[500px] text-[#1f4576] -m-8">VIRCHOW</h1>
-      <div className="relative flex flex-col items-center justify-center mt-20 rounded-2xl shadow-xl bg-gray-100/70 w-[400px] h-[480px]">
-        <div className="absolute top-4 left-4 flex justify-end w-full">
-          {/* <img src={Logo} alt="" className="h-[40px] pr-8" /> */}
-        </div>
-        <span className="text-[#1f4576] text-4xl mb-8">Identificação</span>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="w-[300px] space-y-6">
-            <FormField
-              control={form.control}
-              name="login"
-              render={({ field }) => (
-                <FormItem className='text-left'>
-                  <FormLabel className='text-lg text-[#1f4576]'>Usuário</FormLabel>
-                  <div className="relative rounded-2xl">
-                    <FormControl>
-                      <Input className="pl-10 rounded-2xl bg-gray-100"  {...field} />
-                    </FormControl>
-                    <div className="absolute left-1 top-[4px] p-[6px] bg-[#1f4576] rounded-full">
-                      <PersonIcon color="#fff" />
-                    </div>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="senha"
-              render={({ field }) => (
-                <FormItem className='text-left'>
-                  <FormLabel className='text-lg text-[#1f4576]'>Senha</FormLabel>
-                  <div className="relative rounded-2xl">
-                    <FormControl>
-                      <Input className="pl-10 rounded-2xl bg-gray-100" type="password"  {...field} />
-                    </FormControl>
-                    <div className="absolute left-1 top-[4px] p-[6px] bg-[#1f4576] rounded-full">
-                      <LockClosedIcon color="#fff" />
-                    </div>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
-            <div className="flex justify-center w-full">
-              {loading ?
-                <Button className="w-[90%] h-[40px] mt-8 rounded-2xl" disabled>
-                  <Loader2 className="animate-spin" /> AGUARDE
-                </Button> :
-                <Button type="submit" className='w-[90%] h-[40px] mt-8 rounded-2xl bg-[#1f4576] hover:bg-[#1f4576]/90'>ENTRAR</Button>
-              }
-            </div>
-          </form>
-        </Form>
+      <div className="relative flex items-center justify-center w-2/3 bg-[#0F6278CC]">
+        <img
+          src={Behind}
+          alt=""
+          className="absolute h-full w-1/2 object-contain z-0"
+        />
+        <img
+          src={Front}
+          alt=""
+          className="relative h-[500px] w-[300px] object-cover z-10 rounded-full"
+        />
+      </div>
+
+
+      <div className="flex flex-col items-center justify-center w-1/3">
+        {/* <h1 className="text-5xl text-center font-extrabold w-[500px] text-[#0C647C] mb-4">VIRCHOW</h1> */}
+        <img
+          src={Virchow}
+          alt=""
+          className="w-[60%] object-contain mb-4"
+        />
+        <span className="text-lg text-center font-semibold w-[500px] text-gray-500">Laboratório de Patologia</span>
+
+        <div className="relative flex flex-col items-center justify-center rounded-2xl w-[400px] h-[480px]">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="w-[300px] space-y-6">
+              <FormField
+                control={form.control}
+                name="login"
+                render={({ field }) => (
+                  <FormItem className='text-left'>
+                    <FormLabel className='text-lg text-gray-500'>Login</FormLabel>
+                    <FormControl>
+                      <Input className="pl-4 rounded-xl bg-gray-100"  {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="senha"
+                render={({ field }) => (
+                  <FormItem className='text-left'>
+                    <FormLabel className='text-lg text-gray-500'>Senha</FormLabel>
+                    <FormControl>
+                      <Input className="pl-4 rounded-xl bg-gray-100" type="password"  {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-center w-full">
+                {loading ?
+                  <Button className="w-[90%] h-[40px] mt-8 rounded-2xl" disabled>
+                    <Loader2 className="animate-spin" /> AGUARDE
+                  </Button> :
+                  <Button type="submit" className='w-[90%] h-[40px] mt-8 rounded-xl bg-[#0C647C] hover:bg-[#0C647C]/90'>Acessar</Button>
+                }
+              </div>
+            </form>
+          </Form>
+        </div>
       </div>
     </div>
   )
