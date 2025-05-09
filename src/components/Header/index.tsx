@@ -1,5 +1,7 @@
 import { useNavigate, useLocation, NavLink } from 'react-router-dom';
 
+import Virchow from '@/assets/virchow-header.png';
+
 function Header() {
   const navigate = useNavigate();
   const currentRoute = useLocation();
@@ -15,8 +17,7 @@ function Header() {
 
   return (
     <div className="bg-[#0F6278] absolute top-0 left-0 w-full h-[60px] flex items-center justify-between">
-      {/* <img src={Logo} alt="Logo HC" className="h-[40px] ml-8" /> */}
-      <span className="font-bold text-3xl text-white ml-8">Virchow</span>
+      <img src={Virchow} alt="Logo Virchow" className="h-[30px] ml-8" />
 
       <ul className="flex space-x-8">
         {/* <NavLink
@@ -33,7 +34,7 @@ function Header() {
         </NavLink>
         {/* <NavLink
           to="/impressoes"
-          className="bg-[#0C647C] text-white text-center font-bold w-[250px] px-12 py-1.5 rounded-sm max-md:text-xs"
+          className="bg-[#197791] text-white text-center font-bold w-[250px] px-12 py-1.5 rounded-sm max-md:text-xs"
         >
           IMPRESSOS
         </NavLink> */}
