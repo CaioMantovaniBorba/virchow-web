@@ -86,15 +86,12 @@ function InclusionOfExaminations() {
 
     const patientData = {
       nome: data.name.toUpperCase(),
-      datNascimento: data.datNascimento,
-      unidadeSaude: {
-        nome: data.unidadeSaude
-      }
+      datNascimento: data.datNascimento.length > 0 ? data.datNascimento : null,
     }
 
-    api.post("/pacientes/filtrar", patientData)
+    api.post("/Paciente/filter", patientData)
       .then((response) => {
-        if (response.data === null) {
+        if (response.data.length === 0) {
           toast.warn("Paciente não encontrado!", {
             position: "top-right",
           });
@@ -190,7 +187,7 @@ function InclusionOfExaminations() {
       </div>
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="md:max-w-[700px]">
+        <DialogContent className="md:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Listagem de Pacientes</DialogTitle>
             <DialogDescription>

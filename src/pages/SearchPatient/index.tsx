@@ -185,13 +185,10 @@ function SearchPatient() {
 
     const patientData = {
       nome: data.name.toUpperCase(),
-      datNascimento: data.datNascimento,
-      unidadeSaude: {
-        nome: data.unidadeSaude
-      }
+      datNascimento: data.datNascimento.length > 0 ? data.datNascimento : null,
     }
 
-    api.get("/Paciente")
+    api.post("/Paciente/filter", patientData)
       .then((response) => {
         if (response.data === null) {
           toast.warn("Não existe paciente com os dados informados! Para cadastrá-lo, clique em INCLUIR PACIENTE", {
