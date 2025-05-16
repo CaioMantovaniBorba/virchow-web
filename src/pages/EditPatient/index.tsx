@@ -154,7 +154,6 @@ function EditPatient() {
           <div className="w-full">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6 p-2">
-
                 <div className="flex w-full space-x-8">
                   <div className="w-1/3">
                     <FormField
@@ -250,7 +249,7 @@ function EditPatient() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Profissão</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full uppercase" disabled {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -266,7 +265,7 @@ function EditPatient() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Procedência</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full uppercase" disabled {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

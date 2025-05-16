@@ -60,7 +60,7 @@ function RegisterPatient() {
       message: "Insira a data de nascimento.",
     }),
     profissao: z.string().min(10, {
-      message: "Insira o nome da mãe."
+      message: "Insira a profissão."
     }),
     procedencia: z.string().min(10, {
       message: "Insira a procedência."
@@ -143,7 +143,6 @@ function RegisterPatient() {
           <div className="w-full">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6 p-2">
-
                 <div className="flex w-full space-x-8">
                   <div className="w-1/3">
                     <FormField
@@ -204,7 +203,6 @@ function RegisterPatient() {
                     />
                   </div>
                 </div>
-
 
                 <div className="flex w-full space-x-8">
                   <div className="w-1/3">
