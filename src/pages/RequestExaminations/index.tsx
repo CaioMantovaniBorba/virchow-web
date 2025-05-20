@@ -40,10 +40,12 @@ import { Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-interface Examination {
-  seq_exame: string;
+
+interface LaudoType {
+  id: number;
   nome: string;
-  codigo: string;
+  descricao: string;
+  topicosList: string[];
 }
 
 interface UserType {
@@ -62,6 +64,7 @@ function RequestExaminations() {
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [age, setAge] = useState<Age>({ number: 0, type: "M" });
   const [descricaoLaudo, setDescricaoLaudo] = useState('');
+  const [tiposLaudo, setTiposLaudo] = useState<LaudoType[]>([]);
 
   const patientString = localStorage.getItem("patient");
   const patient: PatientType = patientString ? JSON.parse(patientString) : null;
@@ -72,6 +75,16 @@ function RequestExaminations() {
   const requestDate = date.toISOString();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    api.get('/Exame')
+      .then(response => setTiposLaudo(response.data))
+      .catch(() => {
+        toast.error("Erro ao listar tipos de laudos!", {
+          position: "top-right",
+        });
+      })
+  }, []);
 
   const FormSchema = z.object({
     name: z.string().min(10, {
@@ -95,7 +108,8 @@ function RequestExaminations() {
     resumoClinico: z.string().min(10, {
       message: "Insira o resumo clínico."
     }),
-    datUltimaMenstruacao: z.string().optional()
+    datUltimaMenstruacao: z.string().optional(),
+    tiposLaudo: z.string()
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -129,6 +143,7 @@ function RequestExaminations() {
     }
 
     console.log(laudoData);
+    console.log('Tipo de laudo', data.tiposLaudo);
 
     // api.post("/pedido", data)
     //   .then(response => {
@@ -366,7 +381,7 @@ function RequestExaminations() {
                   <div className="w-1/3">
                     <FormField
                       control={form.control}
-                      name="tipoLaudo"
+                      name="tiposLaudo"
                       render={({ field }) => (
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Tipo de laudo</FormLabel>
@@ -378,9 +393,9 @@ function RequestExaminations() {
                               <SelectContent>
                                 <SelectGroup>
                                   <SelectLabel>Tipo de laudo</SelectLabel>
-                                  <SelectItem value="M">Tipo 1</SelectItem>
-                                  <SelectItem value="F">Tipo 2</SelectItem>
-                                  <SelectItem value="F">Tipo 3</SelectItem>
+                                  {tiposLaudo.map(item => (
+                                    <SelectItem value={item.id}>{item.descricao}</SelectItem>
+                                  ))}
                                 </SelectGroup>
                               </SelectContent>
                             </Select>
