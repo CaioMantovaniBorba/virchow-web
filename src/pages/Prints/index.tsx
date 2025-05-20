@@ -179,7 +179,7 @@ function Prints() {
 
   const columns: ColumnDef<RequestType>[] = [
     {
-      accessorKey: "id",
+      accessorKey: "nroLaudo",
       header: ({ column }) => {
         return (
           <Button
@@ -191,7 +191,7 @@ function Prints() {
           </Button>
         )
       },
-      cell: ({ row }) => <div>{row.getValue("nro_requisicao")}</div>
+      cell: ({ row }) => <div>{row.getValue("nroLaudo")}</div>
     },
     {
       accessorKey: "nomePaciente",
@@ -206,7 +206,7 @@ function Prints() {
           </Button>
         )
       },
-      cell: ({ row }) => <div className="text-left">{row.getValue("nome")}</div>
+      cell: ({ row }) => <div className="text-left">{row.getValue("nomePaciente")}</div>
     },
     {
       accessorKey: "datNascimento",
@@ -224,22 +224,24 @@ function Prints() {
       cell: ({ row }) => <div>{formatDate(row.getValue("datNascimento"))}</div>
     },
     {
-      accessorKey: "desLaudo",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Exame
-            <CaretSortIcon className="ml-2 h-4 w-4" />
-          </Button>
-        )
-      },
-      cell: ({ row }) => <div className="text-left">{row.getValue("nome")}</div>
+      accessorKey: "exame",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Exame
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="text-left">
+          {row.original.exame?.nome}
+        </div>
+      )
     },
     {
-      accessorKey: "dat_inclusao",
+      accessorKey: "datInclusao",
       header: ({ column }) => {
         return (
           <Button
@@ -251,7 +253,7 @@ function Prints() {
           </Button>
         )
       },
-      cell: ({ row }) => <div>{formatDate(row.getValue("dat_inclusao"))}</div>
+      cell: ({ row }) => <div>{formatDate(row.getValue("datInclusao"))}</div>
     },
     {
       accessorKey: "pedido",
@@ -297,17 +299,19 @@ function Prints() {
   });
 
   const FormSchema = z.object({
-    name: z.string(),
-    datNascimento: z.string(),
-    requestId: z.string(),
+    nroLaudo: z.string().optional(),
+    nomePaciente: z.string().min(3, {
+      message: "Insira o nome do paciente.",
+    }),
+    datNascimento: z.string().optional(),
+    datInclusao: z.string().optional(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: "",
+      nomePaciente: "",
       datNascimento: "",
-      requestId: "",
     },
   });
 
@@ -315,16 +319,16 @@ function Prints() {
     setLoading(true);
     const initial = date?.from ? new Date(date.from) : new Date();
     const final = date?.to ? new Date(date.to) : new Date();
+    const nro = data.nroLaudo ? Number(data.nroLaudo) : undefined;
 
-    const patientData = {
-      nro_requisicao: data.requestId,
-      nome: data.name.toUpperCase(),
-      datNascimento: data.datNascimento,
-      dat_inicio_inclusao: date ? `${lightFormat(new Date(initial), 'yyyy-MM-dd')}T00:00:00.933Z` : null,
-      dat_fim_inclusao: date ? `${lightFormat(new Date(final), 'yyyy-MM-dd')}T23:59:00.933Z` : null,
+    const laudoData = {
+      nomePaciente: data.nomePaciente.toUpperCase(),
+      // datNascimento: data.datNascimento,
+      // dat_inicio_inclusao: date ? `${lightFormat(new Date(initial), 'yyyy-MM-dd')}T00:00:00.933Z` : null,
+      // dat_fim_inclusao: date ? `${lightFormat(new Date(final), 'yyyy-MM-dd')}T23:59:00.933Z` : null,
     }
 
-    api.post("/pedido/filtrar", patientData)
+    api.post("/Laudo/filter", laudoData)
       .then((response) => {
         if (response.data === null) {
           toast.warn("Nenhum pedido foi encontrado!", {
@@ -359,7 +363,7 @@ function Prints() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
               <FormField
                 control={form.control}
-                name="requestId"
+                name="nroLaudo"
                 render={({ field }) => (
                   <FormItem className='text-left'>
                     <FormLabel className='text-lg'>Número do laudo</FormLabel>
@@ -373,7 +377,7 @@ function Prints() {
 
               <FormField
                 control={form.control}
-                name="name"
+                name="nomePaciente"
                 render={({ field }) => (
                   <FormItem className='text-left'>
                     <FormLabel className='text-lg'>Nome Paciente</FormLabel>
@@ -467,7 +471,7 @@ function Prints() {
           </Form>
         </div>
 
-        {/* Listar requisições */}
+        {/* Listar laudos */}
         {data?.length >= 0 &&
           <div className="w-full mb-40">
             <Toaster />
