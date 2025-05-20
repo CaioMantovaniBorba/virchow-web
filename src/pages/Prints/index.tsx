@@ -88,9 +88,9 @@ function Prints() {
     exames: string;
   }
 
-  const handlePrintRequest = (nro_requisicao: string) => {
+  const handlePrintRequest = (nroLaudo: string) => {
     setLoadingPrintRequest(true);
-    api.get(`/pedido/${nro_requisicao}`, { responseType: "blob" })
+    api.get(`/Laudo/${nroLaudo}/pdf`, { responseType: "blob" })
       .then(response => {
         setLoadingPrintRequest(false);
         const fileURL = URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
@@ -99,21 +99,6 @@ function Prints() {
       .catch(() => {
         setLoadingPrintRequest(false);
         toast.error("Não foi possível gerar a impressão!");
-      })
-  }
-
-  const handlePrintLabel = (nro_requisicao: string) => {
-    setRequestId(nro_requisicao);
-    setLoadingPrintLabel(true);
-    api.get(`/amostras/${nro_requisicao}`)
-      .then(response => {
-        setOpenDialog(true);
-        setLoadingPrintLabel(false);
-        setSamples(response.data);
-      })
-      .catch(() => {
-        setLoadingPrintLabel(false);
-        toast.error("Não foi possível listar as amostras!");
       })
   }
 
@@ -261,7 +246,7 @@ function Prints() {
         return <Button variant="ghost">Imprimir</Button>
       },
       cell: ({ row }) =>
-        <div className="cursor-pointer flex justify-center" onClick={() => handlePrintRequest(row.getValue("nro_requisicao"))}>
+        <div className="cursor-pointer flex justify-center" onClick={() => handlePrintRequest(row.getValue("nroLaudo"))}>
           {loadingPrintRequest ? <Loader2 className="animate-spin" /> : <PrinterIcon />}
         </div>
     },
@@ -271,7 +256,7 @@ function Prints() {
         return <Button variant="ghost">Alterar</Button>
       },
       cell: ({ row }) =>
-        <div className="cursor-pointer flex justify-center" onClick={() => handlePrintLabel(row.getValue("nro_requisicao"))}>
+        <div className="cursor-pointer flex justify-center" onClick={() => { }}>
           {loadingPrintLabel ? <Loader2 className="animate-spin" /> : <Pencil2Icon />}
         </div>
     }
