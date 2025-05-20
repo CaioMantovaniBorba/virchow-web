@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { Textarea } from "@/components/ui/textarea";
+import { Editor } from 'primereact/editor';
+
 import { z } from "zod";
 
 import Header from "@/components/Header";
@@ -59,6 +61,7 @@ function RequestExaminations() {
   const [loading, setLoading] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [age, setAge] = useState<Age>({ number: 0, type: "M" });
+  const [descricaoLaudo, setDescricaoLaudo] = useState('');
 
   const patientString = localStorage.getItem("patient");
   const patient: PatientType = patientString ? JSON.parse(patientString) : null;
@@ -91,7 +94,8 @@ function RequestExaminations() {
     }),
     resumoClinico: z.string().min(10, {
       message: "Insira o resumo clínico."
-    })
+    }),
+    datUltimaMenstruacao: z.string().optional()
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -107,6 +111,25 @@ function RequestExaminations() {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    const currentDate = new Date();
+
+    const laudoData = {
+      // id: 0,
+      nomePaciente: data.name,
+      idade: age.number,
+      estadoCivil: data.estadoCivil,
+      resumoClinico: data.resumoClinico,
+      hipoteseDiagnostica: data.hipoteseDiagnostica,
+      datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
+      datNascimento: data.datNascimento,
+      medicoRequisitante: data.medicoRequisitante,
+      datExame: currentDate,
+      desLaudo: descricaoLaudo,
+      exameId: 1
+    }
+
+    console.log(laudoData);
+
     // api.post("/pedido", data)
     //   .then(response => {
     //     toast.success("Pedido de exame criado com sucesso!");
@@ -128,8 +151,6 @@ function RequestExaminations() {
     //     toast.error("Não foi possível processar o pedido de exame!");
     //     setLoading(false);
     //   })
-
-    console.log(data);
   }
 
   const calculateAge = (birthDate: string | number | Date, currentDate = new Date()) => {
@@ -311,7 +332,7 @@ function RequestExaminations() {
                   <div className="w-1/3">
                     <FormField
                       control={form.control}
-                      name="datMenstruacao"
+                      name="datUltimaMenstruacao"
                       render={({ field }) => (
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg max-sm:text-sm'>Data da última menstruação</FormLabel>
@@ -416,6 +437,10 @@ function RequestExaminations() {
                       </FormItem>
                     )}
                   />
+                </div>
+
+                <div className="card">
+                  <Editor value={descricaoLaudo} onTextChange={(e) => setDescricaoLaudo(e.htmlValue)} style={{ height: '320px' }} />
                 </div>
 
                 <div className="flex justify-end w-full">
