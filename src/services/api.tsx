@@ -1,8 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://3.129.238.123/api"
-  //baseURL: "https://localhost:44325/api"
+  baseURL: "https://virchowlab.com.br/api"
 })
 
 api.interceptors.request.use(
