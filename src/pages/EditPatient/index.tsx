@@ -39,14 +39,30 @@ import {
 import api from "@/services/api";
 import { UserContext } from "@/contexts/user";
 
+interface EstadoCivilType {
+  id: number;
+  descricao: string;
+}
+
 function EditPatient() {
   const [loading, setLoading] = useState(false);
   const { patient } = useContext(UserContext);
   const [openDialog, setOpenDialog] = useState(false);
+  const [estadoCivil, setEstadoCivil] = useState<EstadoCivilType[]>([]);
 
   const userString = localStorage.getItem("user");
   const user = userString ? JSON.parse(userString) : null;
   const navigate = useNavigate();
+
+  useEffect(() => {
+    api.get('/EstadoCivil')
+      .then(response => setEstadoCivil(response.data))
+      .catch(() => {
+        toast.error("Erro ao listar estados civis!", {
+          position: "top-right",
+        });
+      })
+  }, []);
 
   useEffect(() => {
     if (patient?.nome.length === 0 || patient === undefined) {
@@ -80,8 +96,6 @@ function EditPatient() {
       procedencia: patient?.procedencia
     },
   });
-
-  console.log(patient);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     if (
@@ -179,7 +193,19 @@ function EditPatient() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Estado Civil</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Select onValueChange={field.onChange}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectLabel>Sexo</SelectLabel>
+                                  {estadoCivil.map(item => (
+                                    <SelectItem value={item.id}>{item.descricao}</SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>

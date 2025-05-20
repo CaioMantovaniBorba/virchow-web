@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -38,15 +38,31 @@ import {
 } from "@/components/ui/dialog";
 import api from "@/services/api";
 
+interface EstadoCivilType {
+  id: number;
+  descricao: string;
+}
+
 function RegisterPatient() {
   const [loading, setLoading] = useState(false);
   const [isValid, setIsValid] = useState<boolean>();
   const [openDialog, setOpenDialog] = useState(false);
+  const [estadoCivil, setEstadoCivil] = useState<EstadoCivilType[]>([]);
 
   const navigate = useNavigate();
 
   const userString = localStorage.getItem("user");
   const user = userString ? JSON.parse(userString) : null;
+
+  useEffect(() => {
+    api.get('/EstadoCivil')
+      .then(response => setEstadoCivil(response.data))
+      .catch(() => {
+        toast.error("Erro ao listar estados civis!", {
+          position: "top-right",
+        });
+      })
+  }, []);
 
   const FormSchema = z.object({
     name: z.string().min(8, {
@@ -168,7 +184,19 @@ function RegisterPatient() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Estado Civil</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Select onValueChange={field.onChange}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectLabel>Sexo</SelectLabel>
+                                  {estadoCivil.map(item => (
+                                    <SelectItem value={item.id}>{item.descricao}</SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
