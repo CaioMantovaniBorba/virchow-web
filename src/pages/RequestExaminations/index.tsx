@@ -60,8 +60,9 @@ type Age = {
 
 function RequestExaminations() {
   const [openDialog, setOpenDialog] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [openDiagnosticosDialog, setOpenDiagnosticosDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [age, setAge] = useState<Age>({ number: 0, type: "M" });
   const [descricaoLaudo, setDescricaoLaudo] = useState('');
   const [tiposLaudo, setTiposLaudo] = useState<LaudoType[]>([]);
@@ -84,6 +85,18 @@ function RequestExaminations() {
           position: "top-right",
         });
       })
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.code === "Space") {
+        e.preventDefault(); // evita conflito com autocompletes ou outras ações padrão
+        setOpenDiagnosticosDialog(true);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const FormSchema = z.object({
@@ -344,34 +357,32 @@ function RequestExaminations() {
                     />
                   </div>
 
-                  <div className="w-1/3">
-                    {patient.sexo === "F" &&
-                      <div className="w-1/3">
-                        <FormField
-                          control={form.control}
-                          name="datUltimaMenstruacao"
-                          render={({ field }) => (
-                            <FormItem className='text-left'>
-                              <FormLabel className='text-lg max-sm:text-sm'>Data da última menstruação</FormLabel>
-                              <FormControl>
-                                <Input
-                                  className="pl-2 w-full"
-                                  type="date"
-                                  {...field}
-                                  onChange={(e) => {
-                                    if (e.target.value.length <= 10) {
-                                      field.onChange(e);
-                                    }
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    }
-                  </div>
+                  {patient.sexo === "F" &&
+                    <div className="w-1/3">
+                      <FormField
+                        control={form.control}
+                        name="datUltimaMenstruacao"
+                        render={({ field }) => (
+                          <FormItem className='text-left'>
+                            <FormLabel className='text-lg max-sm:text-sm'>Data da última menstruação</FormLabel>
+                            <FormControl>
+                              <Input
+                                className="pl-2 w-full"
+                                type="date"
+                                {...field}
+                                onChange={(e) => {
+                                  if (e.target.value.length <= 10) {
+                                    field.onChange(e);
+                                  }
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  }
 
                   <div className="w-1/3">
                   </div>
@@ -394,7 +405,7 @@ function RequestExaminations() {
                                 <SelectGroup>
                                   <SelectLabel>Tipo de laudo</SelectLabel>
                                   {tiposLaudo.map(item => (
-                                    <SelectItem value={item.id}>{item.descricao}</SelectItem>
+                                    <SelectItem value={item.id}>{item.nome}</SelectItem>
                                   ))}
                                 </SelectGroup>
                               </SelectContent>
@@ -487,6 +498,23 @@ function RequestExaminations() {
           </div>
         </div>
       </div>
+
+      <Dialog open={openDiagnosticosDialog} onOpenChange={setOpenDiagnosticosDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Diagnósticos</DialogTitle>
+            <DialogDescription>
+              <span className="py-4">Você pressionou Ctrl + Espaço!</span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            {/* <DialogClose>
+              <Button className="w-[100px]">Não</Button>
+            </DialogClose>
+            <Button className="w-[100px] bg-[#0C647C] hover:bg-[#0C647C]/80" onClick={() => navigate("/incluirlaudo")}>Sim</Button> */}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="sm:max-w-[425px]">
