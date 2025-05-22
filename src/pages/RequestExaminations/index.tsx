@@ -53,6 +53,12 @@ interface UserType {
   seq_cliente: string;
 }
 
+interface DiagnosticoType {
+  id: number;
+  codigo: string;
+  conteudo: string;
+}
+
 type Age = {
   number: number;
   type: "M" | "A";
@@ -66,6 +72,7 @@ function RequestExaminations() {
   const [age, setAge] = useState<Age>({ number: 0, type: "M" });
   const [descricaoLaudo, setDescricaoLaudo] = useState('');
   const [tiposLaudo, setTiposLaudo] = useState<LaudoType[]>([]);
+  const [diagnosticos, setDiagnosticos] = useState<DiagnosticoType[]>([]);
 
   const patientString = localStorage.getItem("patient");
   const patient: PatientType = patientString ? JSON.parse(patientString) : null;
@@ -136,6 +143,22 @@ function RequestExaminations() {
       procedencia: patient?.procedencia
     },
   });
+
+  const selectedTipoLaudoId = form.watch("tiposLaudo");
+
+  useEffect(() => {
+    if (selectedTipoLaudoId) {
+      api.get(`/Diagnostico/${selectedTipoLaudoId}`)
+        .then((response) => {
+          setDiagnosticos(response.data);
+        })
+        .catch(() => {
+          toast.error("Erro ao listar os diagnósticos!", {
+            position: "top-right",
+          });
+        })
+    }
+  }, [selectedTipoLaudoId]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const currentDate = new Date();
@@ -499,23 +522,6 @@ function RequestExaminations() {
         </div>
       </div>
 
-      <Dialog open={openDiagnosticosDialog} onOpenChange={setOpenDiagnosticosDialog}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Diagnósticos</DialogTitle>
-            <DialogDescription>
-              <span className="py-4">Você pressionou Ctrl + Espaço!</span>
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            {/* <DialogClose>
-              <Button className="w-[100px]">Não</Button>
-            </DialogClose>
-            <Button className="w-[100px] bg-[#0C647C] hover:bg-[#0C647C]/80" onClick={() => navigate("/incluirlaudo")}>Sim</Button> */}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -547,6 +553,34 @@ function RequestExaminations() {
             </DialogClose>
             <Button className="w-[100px] bg-[#0C647C] hover:bg-[#0C647C]/80">Sim</Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openDiagnosticosDialog} onOpenChange={setOpenDiagnosticosDialog}>
+        <DialogContent className="md:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Listagem de Diagnósticos</DialogTitle>
+            <DialogDescription>
+              Diagnósticos encontrados
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col justify-center overflow-y-auto max-h-80 space-y-2">
+            {diagnosticos && diagnosticos.map((diagnostico) => (
+              <div className="flex">
+                <div className="p-4 rounded border-t border-b border-l border-r-0 w-full">
+                  <span className="text-sm">{diagnostico.conteudo}</span>
+                </div>
+                <div className="border-t border-b border-r text-center">
+                  <Button
+                    className="bg-[#0C647C] hover:bg-[#0C647C]/80 w-[100px] m-2"
+                    onClick={() => console.log(diagnostico.conteudo)}
+                  >
+                    Selecionar
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
     </>
