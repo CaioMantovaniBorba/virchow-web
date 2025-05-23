@@ -3,9 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { Textarea } from "@/components/ui/textarea";
 import { Editor } from 'primereact/editor';
-
 import { z } from "zod";
-
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,12 +32,36 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  PaginationState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable
+} from "@tanstack/react-table";
 import { PatientType } from "@/types/Patient";
 import api from "@/services/api";
 import { Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
+import {
+  CaretSortIcon
+} from "@radix-ui/react-icons";
 
 interface LaudoType {
   id: number;
@@ -65,6 +87,11 @@ type Age = {
 };
 
 function RequestExaminations() {
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 500 });
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
   const [openDialog, setOpenDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [openDiagnosticosDialog, setOpenDiagnosticosDialog] = useState(false);
@@ -73,6 +100,7 @@ function RequestExaminations() {
   const [descricaoLaudo, setDescricaoLaudo] = useState('');
   const [tiposLaudo, setTiposLaudo] = useState<LaudoType[]>([]);
   const [diagnosticos, setDiagnosticos] = useState<DiagnosticoType[]>([]);
+  const [data, setData] = useState<DiagnosticoType[]>([]);
 
   const patientString = localStorage.getItem("patient");
   const patient: PatientType = patientString ? JSON.parse(patientString) : null;
@@ -85,6 +113,77 @@ function RequestExaminations() {
   const editorRef = useRef(null);
 
   const navigate = useNavigate();
+
+  const columns: ColumnDef<DiagnosticoType>[] = [
+    {
+      accessorKey: "codigo",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Código
+            <CaretSortIcon className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => <div>{row.getValue("codigo")}</div>
+    },
+    {
+      accessorKey: "conteudo",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Nome
+            <CaretSortIcon className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => <div className="text-left">{row.getValue("conteudo")}</div>
+    },
+    {
+      accessorKey: "Selecione",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+          </Button>
+        )
+      },
+      cell: ({ row }) => <Button
+        className="bg-[#0C647C] hover:bg-[#0C647C]/80 w-[80px] m-2"
+        onClick={() => insertText(row.getValue("conteudo"))}
+      >Selecionar</Button>
+    },
+
+  ]
+
+  const table = useReactTable({
+    data,
+    columns,
+    onPaginationChange: setPagination,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    state: {
+      pagination,
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+  });
 
   useEffect(() => {
     api.get('/Exame')
@@ -162,6 +261,7 @@ function RequestExaminations() {
       api.get(`/Diagnostico/${selectedTipoLaudoId}`)
         .then((response) => {
           setDiagnosticos(response.data);
+          setData(response.data);
         })
         .catch(() => {
           toast.error("Erro ao listar os diagnósticos!", {
@@ -573,7 +673,7 @@ function RequestExaminations() {
       </Dialog>
 
       <Dialog open={openDiagnosticosDialog} onOpenChange={setOpenDiagnosticosDialog}>
-        <DialogContent className="md:max-w-[500px]">
+        <DialogContent className="md:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Listagem de Diagnósticos</DialogTitle>
             <DialogDescription>
@@ -581,21 +681,65 @@ function RequestExaminations() {
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col justify-center overflow-y-auto max-h-80 space-y-2">
-            {diagnosticos && diagnosticos.map((diagnostico) => (
-              <div className="flex">
-                <div className="p-4 rounded border-t border-b border-l border-r-0 w-full">
-                  <span className="text-sm">{diagnostico.conteudo}</span>
-                </div>
-                <div className="border-t border-b border-r text-center">
-                  <Button
-                    className="bg-[#0C647C] hover:bg-[#0C647C]/80 w-[100px] m-2"
-                    onClick={() => insertText(diagnostico.conteudo)}
-                  >
-                    Selecionar
-                  </Button>
-                </div>
-              </div>
-            ))}
+            <div className="flex w-1/2">
+              <Input
+                className=""
+                placeholder="Filtrar pelo código"
+                value={(table.getColumn("codigo")?.getFilterValue() as string) ?? ""}
+                onChange={(event) =>
+                  table.getColumn("codigo")?.setFilterValue(event.target.value)
+                }
+                className="max-w-md"
+              />
+            </div>
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                        </TableHead>
+                      )
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      Sem dados.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         </DialogContent>
       </Dialog>
