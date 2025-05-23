@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { Textarea } from "@/components/ui/textarea";
@@ -82,6 +82,8 @@ function RequestExaminations() {
   const date = new Date();
   const requestDate = date.toISOString();
 
+  const editorRef = useRef(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -105,6 +107,15 @@ function RequestExaminations() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  const insertText = (diagnostico: string) => {
+    const quill = editorRef.current?.getQuill();
+    if (quill) {
+      const cursorPos = quill.getSelection()?.index || 0;
+      quill.insertText(cursorPos, diagnostico);
+      setOpenDiagnosticosDialog(false);
+    }
+  };
 
   const FormSchema = z.object({
     name: z.string().min(10, {
@@ -493,7 +504,12 @@ function RequestExaminations() {
                 </div>
 
                 <div className="card">
-                  <Editor value={descricaoLaudo} onTextChange={(e) => setDescricaoLaudo(e.htmlValue)} style={{ height: '320px' }} />
+                  <Editor
+                    ref={editorRef}
+                    value={descricaoLaudo}
+                    onTextChange={(e) => setDescricaoLaudo(e.htmlValue)}
+                    style={{ height: '320px' }}
+                  />
                 </div>
 
                 <div className="flex justify-end w-full">
@@ -573,7 +589,7 @@ function RequestExaminations() {
                 <div className="border-t border-b border-r text-center">
                   <Button
                     className="bg-[#0C647C] hover:bg-[#0C647C]/80 w-[100px] m-2"
-                    onClick={() => console.log(diagnostico.conteudo)}
+                    onClick={() => insertText(diagnostico.conteudo)}
                   >
                     Selecionar
                   </Button>
