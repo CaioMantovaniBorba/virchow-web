@@ -130,7 +130,7 @@ function RegisterPatient() {
       .catch((response) => {
         console.log(response.status);
         if (response.status == 409) {
-          return toast.error("Paciente já cadastrado com esse CNS!");
+          return toast.error("Paciente já cadastrado!");
         }
         toast.error("Erro ao cadastrar paciente!", {
           position: "top-right",

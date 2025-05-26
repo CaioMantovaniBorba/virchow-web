@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { Textarea } from "@/components/ui/textarea";
@@ -62,8 +62,9 @@ import { Input } from "@/components/ui/input";
 import {
   CaretSortIcon
 } from "@radix-ui/react-icons";
+import { UserContext } from "@/contexts/user";
 
-interface LaudoType {
+interface DianosticType {
   id: number;
   nome: string;
   descricao: string;
@@ -86,7 +87,7 @@ type Age = {
   type: "M" | "A";
 };
 
-function RequestExaminations() {
+function EditLaudo() {
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 500 });
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -98,14 +99,17 @@ function RequestExaminations() {
   const [loading, setLoading] = useState(false);
   const [age, setAge] = useState<Age>({ number: 0, type: "M" });
   const [descricaoLaudo, setDescricaoLaudo] = useState('');
-  const [tiposLaudo, setTiposLaudo] = useState<LaudoType[]>([]);
+  const [tiposLaudo, setTiposLaudo] = useState<DianosticType[]>([]);
   const [diagnosticos, setDiagnosticos] = useState<DiagnosticoType[]>([]);
   const [data, setData] = useState<DiagnosticoType[]>([]);
+  const { laudo } = useContext(UserContext);
 
   const patientString = localStorage.getItem("patient");
   const patient: PatientType = patientString ? JSON.parse(patientString) : null;
   const userString = localStorage.getItem("user");
   const user: UserType = userString ? JSON.parse(userString) : null;
+
+  console.log("Laudo do Context", laudo);
 
   const date = new Date();
   const requestDate = date.toISOString();
@@ -245,12 +249,15 @@ function RequestExaminations() {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: patient?.nome,
-      estadoCivil: patient?.estadoCivil.descricao,
-      sexo: patient?.sexo,
+      name: laudo?.nomePaciente,
+      estadoCivil: laudo?.estadoCivil,
+      resumoClinico: laudo?.resumoClinico,
+      hipoteseDiagnostica: laudo?.hipoteseDiagnostica,
+      // datUltimaMenstruacao: laudo?.datUltimaMenstruacao,
+      medicoRequisitante: laudo?.medicoRequisitante,
       datNascimento: patient?.datNascimento?.slice(0, 10),
       profissao: patient?.profissao,
-      procedencia: patient?.procedencia
+      procedencia: patient?.procedencia,
     },
   });
 
@@ -272,44 +279,44 @@ function RequestExaminations() {
   }, [selectedTipoLaudoId]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    console.log("Teste")
     const currentDate = new Date();
 
     const laudoData = {
       // id: 0,
       nomePaciente: data.name,
-      idade: age.number.toString(),
+      idade: age.number,
       estadoCivil: data.estadoCivil,
       resumoClinico: data.resumoClinico,
       hipoteseDiagnostica: data.hipoteseDiagnostica,
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
-      datNascimento: `${data.datNascimento}T00:00:00.000Z`,
+      datNascimento: data.datNascimento,
       medicoRequisitante: data.medicoRequisitante,
       datExame: currentDate,
       desLaudo: descricaoLaudo,
       exameId: 1
     }
 
-    api.post("/Laudo", laudoData)
-      .then(response => {
-        toast.success("Laudo criado com sucesso!");
+    console.log(laudoData);
+    console.log('Tipo de laudo', data.tiposLaudo);
+
+    api.post(`/Laudo/${laudo?.id}`, data)
+      .then(() => {
+        toast.success("Laudo atualizado com sucesso!", {
+          position: "top-right",
+        });
         setTimeout(() => {
-          api.get(`/Laudo/${response.data.id}/pdf`, { responseType: "blob" })
-            .then(response => {
-              const fileURL = URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
-              window.open(fileURL);
-              if (fileURL) {
-                navigate("/incluirlaudo");
-              }
-            })
-            .catch(() => {
-              toast.error("Não foi possível gerar a impressão!");
-            })
-        }, 1000);
+          navigate("/impressoes");
+          setLoading(false);
+        }, 2000);
       })
       .catch(() => {
-        toast.error("Não foi possível processar o laudo!");
+        toast.error("Erro ao atualizar laudo!", {
+          position: "top-right",
+        });
         setLoading(false);
-      })
+      }
+      )
   }
 
   const calculateAge = (birthDate: string | number | Date, currentDate = new Date()) => {
@@ -352,7 +359,7 @@ function RequestExaminations() {
 
       <div className="flex flex-col justify-center w-[90%] space-y-8 mt-[68px]">
         <div className="flex items-center w-full h-[50px] rounded-sm bg-gray-200  border border-gray-300">
-          <span className="ml-2 text-xl font-bold">INCLUIR LAUDO</span>
+          <span className="ml-2 text-xl font-bold">EDITAR LAUDO</span>
         </div>
 
         <div className="flex flex-col rounded-sm border border-gray-300 space-y-4">
@@ -397,7 +404,7 @@ function RequestExaminations() {
                   </div>
 
                   <div className="w-1/3">
-                    <FormField
+                    {/* <FormField
                       control={form.control}
                       name="sexo"
                       render={({ field }) => (
@@ -409,7 +416,7 @@ function RequestExaminations() {
                           <FormMessage />
                         </FormItem>
                       )}
-                    />
+                    /> */}
                   </div>
                 </div>
 
@@ -455,7 +462,7 @@ function RequestExaminations() {
                   </div>
 
                   <div className="w-1/3">
-                    <FormField
+                    {/* <FormField
                       control={form.control}
                       name="profissao"
                       render={({ field }) => (
@@ -467,7 +474,7 @@ function RequestExaminations() {
                           <FormMessage />
                         </FormItem>
                       )}
-                    />
+                    /> */}
                   </div>
                 </div>
 
@@ -604,6 +611,7 @@ function RequestExaminations() {
                   <Editor
                     ref={editorRef}
                     value={descricaoLaudo}
+                    defaultValue={laudo?.desLaudo}
                     onTextChange={(e) => setDescricaoLaudo(e.htmlValue)}
                     style={{ height: '320px' }}
                   />
@@ -744,5 +752,5 @@ function RequestExaminations() {
   );
 }
 
-export default RequestExaminations;
+export default EditLaudo;
 

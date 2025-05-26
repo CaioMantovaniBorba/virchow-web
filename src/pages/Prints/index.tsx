@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, ChangeEvent, useEffect } from "react";
+import { useState, ChangeEvent, useEffect, useContext } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2, Trash2 } from "lucide-react";
@@ -62,6 +62,9 @@ import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/Header";
 import api from '@/services/api';
 import { RequestType } from "@/types/Request";
+import { UserContext } from "@/contexts/user";
+import { LaudoType } from "@/types/Laudo";
+import { useNavigate } from "react-router-dom";
 
 function Prints() {
   const [pagination, setPagination] = React.useState<PaginationState>({ pageIndex: 0, pageSize: 500 });
@@ -82,6 +85,8 @@ function Prints() {
     from: subDays(new Date(), 7),
     to: new Date(),
   });
+  const { setLaudo } = useContext(UserContext);
+  const navigate = useNavigate();
 
   type Sample = {
     nro_amostra: 0,
@@ -256,7 +261,7 @@ function Prints() {
         return <Button variant="ghost">Alterar</Button>
       },
       cell: ({ row }) =>
-        <div className="cursor-pointer flex justify-center" onClick={() => { }}>
+        <div className="cursor-pointer flex justify-center" onClick={() => handleNavigate(row.original)}>
           {loadingPrintLabel ? <Loader2 className="animate-spin" /> : <Pencil2Icon />}
         </div>
     }
@@ -331,6 +336,11 @@ function Prints() {
         });
       }
       )
+  }
+
+  const handleNavigate = (laudo: LaudoType) => {
+    setLaudo(laudo);
+    navigate("/editarLaudo");
   }
 
   return (
