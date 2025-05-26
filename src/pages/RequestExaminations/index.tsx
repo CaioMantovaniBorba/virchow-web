@@ -277,12 +277,12 @@ function RequestExaminations() {
     const laudoData = {
       // id: 0,
       nomePaciente: data.name,
-      idade: age.number,
+      idade: age.number.toString(),
       estadoCivil: data.estadoCivil,
       resumoClinico: data.resumoClinico,
       hipoteseDiagnostica: data.hipoteseDiagnostica,
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
-      datNascimento: data.datNascimento,
+      datNascimento: `${data.datNascimento}T00:00:00.000Z`,
       medicoRequisitante: data.medicoRequisitante,
       datExame: currentDate,
       desLaudo: descricaoLaudo,
@@ -292,27 +292,27 @@ function RequestExaminations() {
     console.log(laudoData);
     console.log('Tipo de laudo', data.tiposLaudo);
 
-    // api.post("/pedido", data)
-    //   .then(response => {
-    //     toast.success("Pedido de exame criado com sucesso!");
-    //     setTimeout(() => {
-    //       api.get(`/pedido/${response.data}`, { responseType: "blob" })
-    //         .then(response => {
-    //           const fileURL = URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
-    //           window.open(fileURL);
-    //           if (fileURL) {
-    //             navigate("/incluirlaudo");
-    //           }
-    //         })
-    //         .catch(() => {
-    //           toast.error("Não foi possível gerar a impressão!");
-    //         })
-    //     }, 1000);
-    //   })
-    //   .catch(() => {
-    //     toast.error("Não foi possível processar o pedido de exame!");
-    //     setLoading(false);
-    //   })
+    api.post("/Laudo", laudoData)
+      .then(response => {
+        toast.success("Laudo criado com sucesso!");
+        setTimeout(() => {
+          api.get(`/Laudo/${response.data.id}/pdf`, { responseType: "blob" })
+            .then(response => {
+              const fileURL = URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
+              window.open(fileURL);
+              if (fileURL) {
+                navigate("/incluirlaudo");
+              }
+            })
+            .catch(() => {
+              toast.error("Não foi possível gerar a impressão!");
+            })
+        }, 1000);
+      })
+      .catch(() => {
+        toast.error("Não foi possível processar o laudo!");
+        setLoading(false);
+      })
   }
 
   const calculateAge = (birthDate: string | number | Date, currentDate = new Date()) => {
