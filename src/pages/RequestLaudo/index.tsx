@@ -525,18 +525,28 @@ function RequestExaminations() {
                       control={form.control}
                       name="tiposLaudo"
                       render={({ field }) => (
-                        <FormItem className='text-left'>
-                          <FormLabel className='text-lg'>Tipo de laudo</FormLabel>
+                        <FormItem className="text-left">
+                          <FormLabel className="text-lg">Tipo de laudo</FormLabel>
                           <FormControl>
-                            <Select onValueChange={field.onChange}>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value?.toString()} // Garante que o valor é string
+                            >
                               <SelectTrigger>
-                                <SelectValue placeholder="Selecione" />
+                                <SelectValue
+                                  placeholder="Selecione"
+                                  children={
+                                    tiposLaudo.find(item => item.id.toString() === field.value?.toString())?.nome
+                                  }
+                                />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectGroup>
                                   <SelectLabel>Tipo de laudo</SelectLabel>
                                   {tiposLaudo.map(item => (
-                                    <SelectItem value={item.id}>{item.nome}</SelectItem>
+                                    <SelectItem key={item.id} value={item.id.toString()}>
+                                      {item.nome}
+                                    </SelectItem>
                                   ))}
                                 </SelectGroup>
                               </SelectContent>
