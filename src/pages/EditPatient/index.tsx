@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, ChangeEvent } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -50,8 +50,6 @@ function EditPatient() {
   const [openDialog, setOpenDialog] = useState(false);
   const [estadoCivil, setEstadoCivil] = useState<EstadoCivilType[]>([]);
 
-  const userString = localStorage.getItem("user");
-  const user = userString ? JSON.parse(userString) : null;
   const navigate = useNavigate();
 
   useEffect(() => {

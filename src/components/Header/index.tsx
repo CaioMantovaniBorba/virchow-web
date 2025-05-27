@@ -4,16 +4,12 @@ import Virchow from '@/assets/virchow-header.png';
 
 function Header() {
   const navigate = useNavigate();
-  const currentRoute = useLocation();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/");
   }
-
-  const userString = localStorage.getItem("user");
-  const user = userString ? JSON.parse(userString) : null;
 
   const baseStyle =
     "text-white text-center font-bold w-[250px] px-12 py-1.5 rounded-sm max-md:text-xs";

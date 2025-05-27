@@ -4,7 +4,7 @@ import { UserContext } from "@/contexts/user";
 
 import Login from '../pages/Login';
 import SelectPatientForLado from '@/pages/SelectPatientForLaudo';
-import RequestLaudo from '@/pages/RequestLaudo';
+import CreateLaudo from '@/pages/CreateLaudo';
 import RegisterPatient from '@/pages/RegisterPatient';
 import SearchPatient from '@/pages/SearchPatient';
 import EditPatient from '@/pages/EditPatient';
@@ -19,15 +19,12 @@ const Routes: React.FC = () => {
   const [patient, setPatient] = useState<PatientType>();
   const [laudo, setLaudo] = useState<LaudoType>();
 
-  const userString = localStorage.getItem("user");
-  const loggedUser = userString ? JSON.parse(userString) : null;
-
   return (
     <UserContext.Provider value={{ user, setUser, patient, setPatient, laudo, setLaudo }}>
       <Router>
         <Route path="/" Component={Login} />
         <Route path="/incluirlaudo" Component={SelectPatientForLado} />
-        <Route path="/pedidolaudo" Component={RequestLaudo} />
+        <Route path="/pedidolaudo" Component={CreateLaudo} />
         <Route path="/editarlaudo" Component={EditLaudo} />
         <Route path="/cadastrarpaciente" Component={RegisterPatient} />
         <Route path="/cadastropaciente" Component={SearchPatient} />

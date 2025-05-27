@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState, ChangeEvent, useEffect, useContext } from "react";
+import { useState, useContext } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Loader2, Trash2 } from "lucide-react";
@@ -48,20 +48,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
-import { format, lightFormat, subDays } from "date-fns"
+import { format, /*lightFormat*/ subDays } from "date-fns"
 import { CalendarIcon, PrinterIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/Header";
 import api from '@/services/api';
-import { RequestType } from "@/types/Request";
 import { UserContext } from "@/contexts/user";
 import { LaudoType } from "@/types/Laudo";
 import { useNavigate } from "react-router-dom";
@@ -72,26 +64,15 @@ function Prints() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({})
-  const [data, setData] = useState<RequestType[]>([]);
+  const [data, setData] = useState<LaudoType[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingPrintRequest, setLoadingPrintRequest] = useState(false);
-  const [loadingPrintLabel, setLoadingPrintLabel] = useState(false);
-  const [loadingPrintAllSamples, setLoadingPrintAllSamples] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [samples, setSamples] = useState<Sample[]>([]);
-  const [selectedSamples, setSelectedSamples] = useState<string[]>([]);
-  const [requestId, setRequestId] = useState("");
   const [date, setDate] = React.useState<DateRange | undefined>({
     from: subDays(new Date(), 7),
     to: new Date(),
   });
   const { setLaudo } = useContext(UserContext);
   const navigate = useNavigate();
-
-  type Sample = {
-    nro_amostra: 0,
-    exames: string;
-  }
 
   const handlePrintLaudo = (laudo: LaudoType) => {
     setLoadingPrintRequest(true);
@@ -107,67 +88,12 @@ function Prints() {
       })
   }
 
-  //Se o dialog de seleção de amostras para impressão for fechado, selectedsamples será redefinido 
-  useEffect(() => {
-    if (!openDialog) {
-      setSelectedSamples([]);
-    }
-  }, [openDialog]);
-
-  const handlePrintAllSamples = () => {
-    setLoadingPrintAllSamples(true);
-    api.get(`/etiquetas/${requestId}`, { responseType: "blob" })
-      .then(response => {
-        setLoadingPrintAllSamples(false);
-        const fileURL = URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
-        window.open(fileURL);
-      })
-      .catch(() => {
-        setLoadingPrintAllSamples(false);
-        toast.error("Não foi possível gerar a impressão!");
-      })
-  }
-
-  const handlePrintSelectedSamples = () => {
-    if (selectedSamples.length === 0) {
-      return toast.warn("Nenhuma amostra selecionada!");
-    }
-
-    setLoadingPrintLabel(true);
-    const data = {
-      amostras: selectedSamples
-    }
-
-    api.post('/etiquetas/', data, { responseType: "blob" })
-      .then(response => {
-        setLoadingPrintLabel(false);
-        const fileURL = URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
-        window.open(fileURL);
-      })
-      .catch(() => {
-        setLoadingPrintLabel(false);
-        toast.error("Não foi possível gerar a impressão!");
-      })
-  }
-
-  const handleSelectedSamples = (e: ChangeEvent<HTMLInputElement>) => {
-    const { value, checked } = e.target;
-    if (checked) {
-      return setSelectedSamples(
-        [...selectedSamples, value]
-      );
-    }
-    else {
-      setSelectedSamples(selectedSamples.filter((event) => event !== value))
-    }
-  }
-
   const formatDate = (date: string) => {
     const dateFormatted = new Date(date);
     return dateFormatted.toLocaleString().slice(0, 10);
   }
 
-  const columns: ColumnDef<RequestType>[] = [
+  const columns: ColumnDef<LaudoType>[] = [
     {
       accessorKey: "nroLaudo",
       header: ({ column }) => {
@@ -262,7 +188,7 @@ function Prints() {
       },
       cell: ({ row }) =>
         <div className="cursor-pointer flex justify-center" onClick={() => handleNavigate(row.original)}>
-          {loadingPrintLabel ? <Loader2 className="animate-spin" /> : <Pencil2Icon />}
+          <Pencil2Icon />
         </div>
     }
   ]
@@ -307,9 +233,9 @@ function Prints() {
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
-    const initial = date?.from ? new Date(date.from) : new Date();
-    const final = date?.to ? new Date(date.to) : new Date();
-    const nro = data.nroLaudo ? Number(data.nroLaudo) : undefined;
+    // const initial = date?.from ? new Date(date.from) : new Date();
+    // const final = date?.to ? new Date(date.to) : new Date();
+    // const nro = data.nroLaudo ? Number(data.nroLaudo) : undefined;
 
     const laudoData = {
       nomePaciente: data.nomePaciente.toUpperCase(),
@@ -525,59 +451,6 @@ function Prints() {
           </div>
         }
       </div>
-
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-[550px] sm:max-h-[500px] overflow-auto overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Impressão de Amostras</DialogTitle>
-          </DialogHeader>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[140px]">Número da amostra</TableHead>
-                <TableHead>Exames</TableHead>
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            {samples && samples.map(sample => (
-              <TableBody>
-                <TableRow className="focus:bg-sky-200">
-                  <TableCell className="font-medium">{sample.nro_amostra}</TableCell>
-                  <TableCell>
-                    {sample.exames.length > 20 ? `${sample.exames.slice(0, 20)}...` : sample.exames}
-                  </TableCell>
-                  <TableCell>
-                    <input
-                      type="checkbox"
-                      name=""
-                      id=""
-                      className="w-6 h-6"
-                      value={sample.nro_amostra}
-                      onChange={event => handleSelectedSamples(event)}
-                    />
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            ))}
-          </Table>
-          <DialogFooter>
-            <Button
-              type="button"
-              className="w-[100px] bg-[#0C647C] hover:bg-[#0C647C]/80"
-              onClick={() => handlePrintAllSamples()}
-            >
-              {loadingPrintAllSamples ? <Loader2 className="animate-spin" /> : "Imprimir todas"}
-            </Button>
-            <Button
-              type="button"
-              className="w-[100px] bg-[#0C647C] hover:bg-[#0C647C]/80"
-              onClick={() => handlePrintSelectedSamples()}
-            >
-              {loadingPrintLabel ? <Loader2 className="animate-spin" /> : "Imprimir"}
-            </Button>
-          </DialogFooter>
-        </DialogContent >
-      </Dialog >
     </>
   );
 }

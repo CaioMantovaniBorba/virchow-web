@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -45,14 +45,10 @@ interface EstadoCivilType {
 
 function RegisterPatient() {
   const [loading, setLoading] = useState(false);
-  const [isValid, setIsValid] = useState<boolean>();
   const [openDialog, setOpenDialog] = useState(false);
   const [estadoCivil, setEstadoCivil] = useState<EstadoCivilType[]>([]);
 
   const navigate = useNavigate();
-
-  const userString = localStorage.getItem("user");
-  const user = userString ? JSON.parse(userString) : null;
 
   useEffect(() => {
     api.get('/EstadoCivil')

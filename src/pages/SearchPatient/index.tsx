@@ -63,8 +63,6 @@ function SearchPatient() {
   const [rowSelection, setRowSelection] = React.useState({})
   const [data, setData] = useState<PatientType[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isValid, setIsValid] = useState<boolean>();
-  const [openDialog, setOpenDialog] = useState(false);
 
   const navigate = useNavigate();
   const { setPatient } = useContext(UserContext);

@@ -1,4 +1,4 @@
-import { ChangeEvent, useContext, /* useEffect, */ useState } from 'react';
+import { useContext, /* useEffect, */ useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -41,7 +41,6 @@ function SelectPatientForLado() {
   const [openDialog, setOpenDialog] = useState(false);
   const [data, setData] = useState<PatientType[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isValid, setIsValid] = useState<boolean>();
 
   const { setPatient } = useContext(UserContext);
   const navigate = useNavigate();

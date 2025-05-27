@@ -70,11 +70,6 @@ interface LaudoType {
   topicosList: string[];
 }
 
-interface UserType {
-  nome: string;
-  seq_cliente: string;
-}
-
 interface DiagnosticoType {
   id: number;
   codigo: string;
@@ -97,18 +92,12 @@ function RequestExaminations() {
   const [openDiagnosticosDialog, setOpenDiagnosticosDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [age, setAge] = useState<Age>({ number: 0, type: "M" });
-  const [descricaoLaudo, setDescricaoLaudo] = useState('');
+  const [descricaoLaudo, setDescricaoLaudo] = useState<string | null>(null);
   const [tiposLaudo, setTiposLaudo] = useState<LaudoType[]>([]);
-  const [diagnosticos, setDiagnosticos] = useState<DiagnosticoType[]>([]);
   const [data, setData] = useState<DiagnosticoType[]>([]);
 
   const patientString = localStorage.getItem("patient");
   const patient: PatientType = patientString ? JSON.parse(patientString) : null;
-  const userString = localStorage.getItem("user");
-  const user: UserType = userString ? JSON.parse(userString) : null;
-
-  const date = new Date();
-  const requestDate = date.toISOString();
 
   const editorRef = useRef(null);
 
@@ -260,7 +249,6 @@ function RequestExaminations() {
     if (selectedTipoLaudoId) {
       api.get(`/Diagnostico/${selectedTipoLaudoId}`)
         .then((response) => {
-          setDiagnosticos(response.data);
           setData(response.data);
         })
         .catch(() => {
@@ -441,7 +429,7 @@ function RequestExaminations() {
                   </div>
 
                   <div className="w-1/3">
-                    <label htmlFor="age" className="block text-sm font-medium leading-6">
+                    <label htmlFor="age" className="block text-lg font-medium mb-1">
                       Idade
                     </label>
                     <input
@@ -690,7 +678,6 @@ function RequestExaminations() {
           <div className="flex flex-col justify-center overflow-y-auto max-h-80 space-y-2">
             <div className="flex w-1/2">
               <Input
-                className=""
                 placeholder="Filtrar pelo código"
                 value={(table.getColumn("codigo")?.getFilterValue() as string) ?? ""}
                 onChange={(event) =>
