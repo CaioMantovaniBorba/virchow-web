@@ -93,9 +93,9 @@ function Prints() {
     exames: string;
   }
 
-  const handlePrintRequest = (nroLaudo: string) => {
+  const handlePrintLaudo = (laudo: LaudoType) => {
     setLoadingPrintRequest(true);
-    api.get(`/Laudo/${nroLaudo}/pdf`, { responseType: "blob" })
+    api.get(`/Laudo/${laudo.id}/pdf`, { responseType: "blob" })
       .then(response => {
         setLoadingPrintRequest(false);
         const fileURL = URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
@@ -251,7 +251,7 @@ function Prints() {
         return <Button variant="ghost">Imprimir</Button>
       },
       cell: ({ row }) =>
-        <div className="cursor-pointer flex justify-center" onClick={() => handlePrintRequest(row.getValue("nroLaudo"))}>
+        <div className="cursor-pointer flex justify-center" onClick={() => handlePrintLaudo(row.original)}>
           {loadingPrintRequest ? <Loader2 className="animate-spin" /> : <PrinterIcon />}
         </div>
     },
