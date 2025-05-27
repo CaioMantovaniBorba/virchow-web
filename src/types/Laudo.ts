@@ -12,6 +12,12 @@ export type LaudoType = {
   datUltimaMenstruacao: string,
   medicoRequisitante: string,
   datExame: string,
+  exame: {
+		id: number,
+		nome: string,
+		descricao: string,
+		topicosList: []
+	},
   desLaudo: string,
   tipoLaudoId: number
 }
