@@ -3,8 +3,8 @@ import { Routes as Router, Route } from 'react-router-dom';
 import { UserContext } from "@/contexts/user";
 
 import Login from '../pages/Login';
-import InclusionExaminations from '@/pages/InclusionExaminations';
-import RequestExaminations from '@/pages/RequestExaminations';
+import SelectPatientForLado from '@/pages/SelectPatientForLaudo';
+import RequestLaudo from '@/pages/RequestLaudo';
 import RegisterPatient from '@/pages/RegisterPatient';
 import SearchPatient from '@/pages/SearchPatient';
 import EditPatient from '@/pages/EditPatient';
@@ -26,8 +26,8 @@ const Routes: React.FC = () => {
     <UserContext.Provider value={{ user, setUser, patient, setPatient, laudo, setLaudo }}>
       <Router>
         <Route path="/" Component={Login} />
-        <Route path="/incluirlaudo" Component={InclusionExaminations} />
-        <Route path="/pedidolaudo" Component={RequestExaminations} />
+        <Route path="/incluirlaudo" Component={SelectPatientForLado} />
+        <Route path="/pedidolaudo" Component={RequestLaudo} />
         <Route path="/editarlaudo" Component={EditLaudo} />
         <Route path="/cadastrarpaciente" Component={RegisterPatient} />
         <Route path="/cadastropaciente" Component={SearchPatient} />

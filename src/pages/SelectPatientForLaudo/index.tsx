@@ -37,7 +37,7 @@ import api from '@/services/api';
 import { PatientType } from '@/types/Patient';
 import { UserContext } from "@/contexts/user";
 
-function InclusionOfExaminations() {
+function SelectPatientForLado() {
   const [openDialog, setOpenDialog] = useState(false);
   const [data, setData] = useState<PatientType[]>([]);
   const [loading, setLoading] = useState(false);
@@ -231,5 +231,5 @@ function InclusionOfExaminations() {
   );
 }
 
-export default InclusionOfExaminations;
+export default SelectPatientForLado;
 

@@ -193,15 +193,25 @@ function EditPatient() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Estado Civil</FormLabel>
                           <FormControl>
-                            <Select onValueChange={field.onChange}>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
                               <SelectTrigger>
-                                <SelectValue placeholder="Selecione" />
+                                <SelectValue
+                                  placeholder="Selecione"
+                                  children={
+                                    estadoCivil.find((item) => item.id === field.value)?.descricao
+                                  }
+                                />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectGroup>
-                                  <SelectLabel>Sexo</SelectLabel>
-                                  {estadoCivil.map(item => (
-                                    <SelectItem value={item.id}>{item.descricao}</SelectItem>
+                                  <SelectLabel>Estado Civil</SelectLabel>
+                                  {estadoCivil.map((item) => (
+                                    <SelectItem key={item.id} value={item.id.toString()}>
+                                      {item.descricao}
+                                    </SelectItem>
                                   ))}
                                 </SelectGroup>
                               </SelectContent>
