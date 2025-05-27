@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useContext } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { Textarea } from "@/components/ui/textarea";
@@ -54,6 +54,7 @@ import {
   useReactTable
 } from "@tanstack/react-table";
 import { PatientType } from "@/types/Patient";
+import { LaudoType as LaudoBodyType } from "@/types/Laudo";
 import api from "@/services/api";
 import { Loader2 } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -62,9 +63,8 @@ import { Input } from "@/components/ui/input";
 import {
   CaretSortIcon
 } from "@radix-ui/react-icons";
-import { UserContext } from "@/contexts/user";
 
-interface DianosticType {
+interface LaudoType {
   id: number;
   nome: string;
   descricao: string;
@@ -99,17 +99,16 @@ function EditLaudo() {
   const [loading, setLoading] = useState(false);
   const [age, setAge] = useState<Age>({ number: 0, type: "M" });
   const [descricaoLaudo, setDescricaoLaudo] = useState('');
-  const [tiposLaudo, setTiposLaudo] = useState<DianosticType[]>([]);
+  const [tiposLaudo, setTiposLaudo] = useState<LaudoType[]>([]);
   const [diagnosticos, setDiagnosticos] = useState<DiagnosticoType[]>([]);
   const [data, setData] = useState<DiagnosticoType[]>([]);
-  const { laudo } = useContext(UserContext);
 
   const patientString = localStorage.getItem("patient");
   const patient: PatientType = patientString ? JSON.parse(patientString) : null;
   const userString = localStorage.getItem("user");
   const user: UserType = userString ? JSON.parse(userString) : null;
-
-  console.log("Laudo do Context", laudo);
+  const laudoString = localStorage.getItem("laudo");
+  const laudo: LaudoBodyType = laudoString ? JSON.parse(laudoString) : null;
 
   const date = new Date();
   const requestDate = date.toISOString();
@@ -197,16 +196,16 @@ function EditLaudo() {
           position: "top-right",
         });
       })
-  }, []);
 
-  useEffect(() => {
+    if (laudo) {
+      setDescricaoLaudo(laudo.desLaudo);
+    }
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.code === "Space") {
         e.preventDefault(); // evita conflito com autocompletes ou outras ações padrão
         setOpenDiagnosticosDialog(true);
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
@@ -251,13 +250,13 @@ function EditLaudo() {
     defaultValues: {
       name: laudo?.nomePaciente,
       estadoCivil: laudo?.estadoCivil,
-      resumoClinico: laudo?.resumoClinico,
-      hipoteseDiagnostica: laudo?.hipoteseDiagnostica,
-      // datUltimaMenstruacao: laudo?.datUltimaMenstruacao,
+      sexo: laudo?.sexo,
+      profissao: laudo?.profissao,
+      procedencia: laudo?.procedencia,
       medicoRequisitante: laudo?.medicoRequisitante,
-      datNascimento: patient?.datNascimento?.slice(0, 10),
-      profissao: patient?.profissao,
-      procedencia: patient?.procedencia,
+      hipoteseDiagnostica: laudo?.hipoteseDiagnostica,
+      resumoClinico: laudo?.resumoClinico,
+      datNascimento: laudo?.datNascimento?.slice(0, 10),
     },
   });
 
@@ -279,44 +278,35 @@ function EditLaudo() {
   }, [selectedTipoLaudoId]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log("Teste")
     const currentDate = new Date();
 
     const laudoData = {
-      // id: 0,
       nomePaciente: data.name,
-      idade: age.number,
+      idade: age.number.toString(),
       estadoCivil: data.estadoCivil,
       resumoClinico: data.resumoClinico,
       hipoteseDiagnostica: data.hipoteseDiagnostica,
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
-      datNascimento: data.datNascimento,
+      datNascimento: `${data.datNascimento}T00:00:00.000Z`,
       medicoRequisitante: data.medicoRequisitante,
       datExame: currentDate,
       desLaudo: descricaoLaudo,
       exameId: 1
     }
 
-    console.log(laudoData);
-    console.log('Tipo de laudo', data.tiposLaudo);
+    console.log("laudoData", laudoData);
 
-    api.post(`/Laudo/${laudo?.id}`, data)
+    api.put(`/Laudo/${laudo.id}`, laudoData)
       .then(() => {
-        toast.success("Laudo atualizado com sucesso!", {
-          position: "top-right",
-        });
+        toast.success("Laudo atualizado com sucesso!");
         setTimeout(() => {
           navigate("/impressoes");
-          setLoading(false);
-        }, 2000);
+        }, 1000);
       })
       .catch(() => {
-        toast.error("Erro ao atualizar laudo!", {
-          position: "top-right",
-        });
+        toast.error("Não foi possível atualizar o laudo!");
         setLoading(false);
-      }
-      )
+      })
   }
 
   const calculateAge = (birthDate: string | number | Date, currentDate = new Date()) => {
@@ -404,7 +394,7 @@ function EditLaudo() {
                   </div>
 
                   <div className="w-1/3">
-                    {/* <FormField
+                    <FormField
                       control={form.control}
                       name="sexo"
                       render={({ field }) => (
@@ -416,7 +406,7 @@ function EditLaudo() {
                           <FormMessage />
                         </FormItem>
                       )}
-                    /> */}
+                    />
                   </div>
                 </div>
 
@@ -462,7 +452,7 @@ function EditLaudo() {
                   </div>
 
                   <div className="w-1/3">
-                    {/* <FormField
+                    <FormField
                       control={form.control}
                       name="profissao"
                       render={({ field }) => (
@@ -474,7 +464,7 @@ function EditLaudo() {
                           <FormMessage />
                         </FormItem>
                       )}
-                    /> */}
+                    />
                   </div>
                 </div>
 
@@ -611,7 +601,6 @@ function EditLaudo() {
                   <Editor
                     ref={editorRef}
                     value={descricaoLaudo}
-                    defaultValue={laudo?.desLaudo}
                     onTextChange={(e) => setDescricaoLaudo(e.htmlValue)}
                     style={{ height: '320px' }}
                   />

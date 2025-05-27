@@ -341,6 +341,7 @@ function Prints() {
   const handleNavigate = (laudo: LaudoType) => {
     setLaudo(laudo);
     navigate("/editarLaudo");
+    localStorage.setItem("laudo", JSON.stringify(laudo));
   }
 
   return (

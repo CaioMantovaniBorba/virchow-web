@@ -78,7 +78,7 @@ function RegisterPatient() {
     profissao: z.string().min(10, {
       message: "Insira a profissão."
     }),
-    procedencia: z.string().min(10, {
+    procedencia: z.string().min(4, {
       message: "Insira a procedência."
     })
   });
