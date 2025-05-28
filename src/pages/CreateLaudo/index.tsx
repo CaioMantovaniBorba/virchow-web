@@ -260,6 +260,7 @@ function RequestExaminations() {
   }, [selectedTipoLaudoId]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    setLoading(true);
     const currentDate = new Date();
 
     const laudoData = {
@@ -267,6 +268,9 @@ function RequestExaminations() {
       nomePaciente: data.name,
       idade: age.number.toString(),
       estadoCivil: data.estadoCivil,
+      sexo: patient.sexo,
+      profissao: patient.profissao,
+      procedencia: patient.profissao,
       resumoClinico: data.resumoClinico,
       hipoteseDiagnostica: data.hipoteseDiagnostica,
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
@@ -296,6 +300,8 @@ function RequestExaminations() {
       })
       .catch(() => {
         toast.error("Não foi possível processar o laudo!");
+      })
+      .finally(() => {
         setLoading(false);
       })
   }
@@ -614,6 +620,7 @@ function RequestExaminations() {
                   // onClick={() => setOpenDialog(true)}
                   >
                     Cancelar</Button>
+
                   {loading ?
                     <Button className="w-[200px] m-2" disabled>
                       <Loader2 className="animate-spin" /> Aguarde

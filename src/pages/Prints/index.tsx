@@ -216,9 +216,7 @@ function Prints() {
 
   const FormSchema = z.object({
     nroLaudo: z.string().optional(),
-    nomePaciente: z.string().min(3, {
-      message: "Insira o nome do paciente.",
-    }),
+    nomePaciente: z.string().optional(),
     datNascimento: z.string().optional(),
     datInclusao: z.string().optional(),
   });
@@ -235,10 +233,10 @@ function Prints() {
     setLoading(true);
     // const initial = date?.from ? new Date(date.from) : new Date();
     // const final = date?.to ? new Date(date.to) : new Date();
-    // const nro = data.nroLaudo ? Number(data.nroLaudo) : undefined;
 
     const laudoData = {
       nomePaciente: data.nomePaciente.toUpperCase(),
+      nroLaudo: data.nroLaudo ? Number(data.nroLaudo) : null
       // datNascimento: data.datNascimento,
       // dat_inicio_inclusao: date ? `${lightFormat(new Date(initial), 'yyyy-MM-dd')}T00:00:00.933Z` : null,
       // dat_fim_inclusao: date ? `${lightFormat(new Date(final), 'yyyy-MM-dd')}T23:59:00.933Z` : null,

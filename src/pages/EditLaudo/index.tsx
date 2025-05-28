@@ -453,7 +453,7 @@ function EditLaudo() {
                   </div>
 
                   <div className="w-1/3">
-                    <label htmlFor="age" className="block text-sm font-medium leading-6">
+                    <label htmlFor="age" className="block text-lg font-medium mb-1">
                       Idade
                     </label>
                     <input
@@ -462,7 +462,7 @@ function EditLaudo() {
                       type="undefined"
                       value={age.type === "M" ? `${age.number} meses` : `${age.number} anos`}
                       disabled
-                      className="block p-2 w-full rounded-sm border-0 py-1.5 text-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 sm:text-sm sm:leading-6"
+                      className="block p-2 w-full rounded-sm border-0 py-1.5 bg-transparent text-gray-400 shadow-sm ring-1 ring-inset ring-gray-100 sm:text-sm sm:leading-6"
                     />
                   </div>
 
