@@ -88,9 +88,10 @@ function EditLaudo() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [openDialog, setOpenDialog] = useState(false);
+  const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [openDiagnosticosDialog, setOpenDiagnosticosDialog] = useState(false);
+  const [openInvalidDialog, setOpenInvalidDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [age, setAge] = useState<Age>({ number: 0, type: "M" });
   const [descricaoLaudo, setDescricaoLaudo] = useState<string | null>(null);
@@ -99,6 +100,8 @@ function EditLaudo() {
 
   const patientString = localStorage.getItem("patient");
   const patient: PatientType = patientString ? JSON.parse(patientString) : null;
+  const userString = localStorage.getItem("usuario");
+  const user: PatientType = userString ? JSON.parse(userString) : null;
   const laudoString = localStorage.getItem("laudo");
   const laudo: LaudoBodyType = laudoString ? JSON.parse(laudoString) : null;
 
@@ -265,6 +268,7 @@ function EditLaudo() {
   }, [selectedTipoLaudoId]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    setLoading(true);
     const currentDate = new Date();
 
     const laudoData = {
@@ -292,6 +296,30 @@ function EditLaudo() {
       })
       .catch(() => {
         toast.error("Não foi possível atualizar o laudo!");
+      })
+      .finally(() => {
+        setLoading(false);
+      })
+  }
+
+  const handleInvalidLaudo = () => {
+    setLoading(true);
+    const body = {
+      usuarioId: user.id
+    }
+    api.patch(`/Laudo/Invalidar/${laudo.id}`, body)
+      .then(() => {
+        toast.success("Laudo invalidado com sucesso!");
+        setTimeout(() => {
+          navigate("/impressoes");
+        }, 1000);
+      })
+      .catch(() => {
+        toast.error("Erro ao invalidar laudo!", {
+          position: "top-right",
+        });
+      })
+      .finally(() => {
         setLoading(false);
       })
   }
@@ -594,12 +622,25 @@ function EditLaudo() {
                 </div>
 
                 <div className="flex justify-end w-full">
+                  {loading ?
+                    <Button className="w-[200px] m-2" disabled>
+                      <Loader2 className="animate-spin" /> Aguarde
+                    </Button> :
+                    <Button
+                      type="submit"
+                      className="w-[200px] m-2 bg-red-700 hover:bg-red-700/80"
+                      onClick={() => setOpenInvalidDialog(true)}
+                    >
+                      Invalidar
+                    </Button>
+                  }
+
                   <Button
                     className="w-[200px] m-2"
-                    type="submit"
-                  // onClick={() => setOpenDialog(true)}
+                    onClick={() => setOpenCancelDialog(true)}
                   >
                     Cancelar</Button>
+
                   {loading ?
                     <Button className="w-[200px] m-2" disabled>
                       <Loader2 className="animate-spin" /> Aguarde
@@ -619,19 +660,19 @@ function EditLaudo() {
         </div>
       </div>
 
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+      <Dialog open={openInvalidDialog} onOpenChange={setOpenInvalidDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Confirmação</DialogTitle>
             <DialogDescription>
             </DialogDescription>
           </DialogHeader>
-          <span className="py-4">Tem certeza que deseja cancelar a inclusão do laudo?</span>
+          <span className="py-4">Tem certeza que deseja invalidar o laudo?</span>
           <DialogFooter>
             <DialogClose>
               <Button className="w-[100px]">Não</Button>
             </DialogClose>
-            <Button className="w-[100px] bg-[#0C647C] hover:bg-[#0C647C]/80" onClick={() => navigate("/incluirlaudo")}>Sim</Button>
+            <Button className="w-[100px] bg-[#0C647C] hover:bg-[#0C647C]/80" onClick={() => handleInvalidLaudo()}>{loading ? <Loader2 className="animate-spin" /> : 'Sim'}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -649,6 +690,23 @@ function EditLaudo() {
               <Button className="w-[100px]">Não</Button>
             </DialogClose>
             <Button className="w-[100px] bg-[#0C647C] hover:bg-[#0C647C]/80">Sim</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={openCancelDialog} onOpenChange={setOpenCancelDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Confirmação</DialogTitle>
+            <DialogDescription>
+            </DialogDescription>
+          </DialogHeader>
+          <span className="py-4">Deseja cancelar a edição do laudo?</span>
+          <DialogFooter>
+            <DialogClose>
+              <Button className="w-[100px]">Não</Button>
+            </DialogClose>
+            <Button className="w-[100px] bg-[#0C647C] hover:bg-[#0C647C]/80" onClick={() => navigate('/impressoes')}>Sim</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -728,4 +786,3 @@ function EditLaudo() {
 }
 
 export default EditLaudo;
-
