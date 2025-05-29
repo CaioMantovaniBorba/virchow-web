@@ -87,7 +87,7 @@ function RequestExaminations() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [openDialog, setOpenDialog] = useState(false);
+  const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [openDiagnosticosDialog, setOpenDiagnosticosDialog] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -548,6 +548,8 @@ function RequestExaminations() {
                           </FormControl>
                           <FormMessage />
                         </FormItem>
+
+
                       )}
                     />
                   </div>
@@ -616,8 +618,8 @@ function RequestExaminations() {
                 <div className="flex justify-end w-full">
                   <Button
                     className="w-[200px] m-2"
-                    type="submit"
-                  // onClick={() => setOpenDialog(true)}
+                    type="button"
+                    onClick={() => setOpenCancelDialog(true)}
                   >
                     Cancelar</Button>
 
@@ -640,7 +642,7 @@ function RequestExaminations() {
         </div>
       </div>
 
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+      <Dialog open={openCancelDialog} onOpenChange={setOpenCancelDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Confirmação</DialogTitle>

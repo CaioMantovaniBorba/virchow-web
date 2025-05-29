@@ -285,8 +285,6 @@ function EditLaudo() {
       exameId: 1
     }
 
-    console.log("laudoData", laudoData);
-
     api.put(`/Laudo/${laudo.id}`, laudoData)
       .then(() => {
         toast.success("Laudo atualizado com sucesso!");
