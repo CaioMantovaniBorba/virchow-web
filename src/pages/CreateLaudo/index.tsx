@@ -552,13 +552,15 @@ function RequestExaminations() {
                           <FormControl>
                             <Select
                               onValueChange={(value) => handleTipoLaudoChange(value, field.onChange)}
-                              value={field.value?.toString()}
+                              value={field.value?.toString() ?? ""}
                             >
                               <SelectTrigger>
                                 <SelectValue
                                   placeholder="Selecione"
                                   children={
-                                    tiposLaudo.find(item => item.id.toString() === field.value?.toString())?.nome
+                                    tiposLaudo.find(
+                                      item => item.id.toString() === field.value?.toString()
+                                    )?.nome ?? "Selecione"
                                   }
                                 />
                               </SelectTrigger>
