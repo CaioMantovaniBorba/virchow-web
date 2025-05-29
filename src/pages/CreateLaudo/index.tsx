@@ -184,10 +184,24 @@ function RequestExaminations() {
       })
   }, []);
 
+  const handleTipoLaudoChange = (value: string, fieldOnChange: (value: string) => void) => {
+    const selectedLaudo = tiposLaudo.find(item => item.id.toString() === value);
+    if (selectedLaudo) {
+      const htmlTopicos = selectedLaudo.topicosList
+        .map(t => `<p>${t}</p><br />`)
+        .join('');
+
+      setDescricaoLaudo(htmlTopicos);
+    }
+
+    fieldOnChange(value); // atualiza o form
+  };
+
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.code === "Space") {
-        e.preventDefault(); // evita conflito com autocompletes ou outras ações padrão
+        e.preventDefault();
         setOpenDiagnosticosDialog(true);
       }
     };
@@ -523,8 +537,8 @@ function RequestExaminations() {
                           <FormLabel className="text-lg">Tipo de laudo</FormLabel>
                           <FormControl>
                             <Select
-                              onValueChange={field.onChange}
-                              value={field.value?.toString()} // Garante que o valor é string
+                              onValueChange={(value) => handleTipoLaudoChange(value, field.onChange)}
+                              value={field.value?.toString()}
                             >
                               <SelectTrigger>
                                 <SelectValue
@@ -548,8 +562,6 @@ function RequestExaminations() {
                           </FormControl>
                           <FormMessage />
                         </FormItem>
-
-
                       )}
                     />
                   </div>

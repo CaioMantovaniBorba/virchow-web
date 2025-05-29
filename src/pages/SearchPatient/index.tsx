@@ -172,13 +172,6 @@ function SearchPatient() {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    // if (data.name.length <= 2 &&
-    //   data.datNascimento.length === 0 &&
-    //   data.unidadeSaude.length === 0
-    // ) {
-    //   return alert("Preencha no mínimo um campo!");
-    // }
-
     setLoading(true);
 
     const patientData = {
