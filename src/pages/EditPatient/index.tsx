@@ -283,7 +283,7 @@ function EditPatient() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Profissão</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" disabled {...field} />
+                            <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -299,7 +299,7 @@ function EditPatient() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Procedência</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" disabled {...field} />
+                            <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
