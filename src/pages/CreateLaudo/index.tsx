@@ -99,8 +99,6 @@ function RequestExaminations() {
   const patientString = localStorage.getItem("patient");
   const patient: PatientType = patientString ? JSON.parse(patientString) : null;
 
-  const editorRef = useRef(null);
-
   const navigate = useNavigate();
 
   const columns: ColumnDef<DiagnosticoType>[] = [
@@ -150,7 +148,6 @@ function RequestExaminations() {
         onClick={() => insertText(row.getValue("conteudo"))}
       >Selecionar</Button>
     },
-
   ]
 
   const table = useReactTable({
@@ -197,10 +194,10 @@ function RequestExaminations() {
     fieldOnChange(value); // atualiza o form
   };
 
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.code === "Space") {
+        openDialogAndSaveCursor();
         e.preventDefault();
         setOpenDiagnosticosDialog(true);
       }
@@ -210,14 +207,31 @@ function RequestExaminations() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const insertText = (diagnostico: string) => {
+  const editorRef = useRef<any>(null);
+  const cursorIndexRef = useRef<number | null>(null);
+
+  // capturar a posição do cursor
+  const openDialogAndSaveCursor = () => {
     const quill = editorRef.current?.getQuill();
     if (quill) {
-      const cursorPos = quill.getSelection()?.index || 0;
-      quill.insertText(cursorPos, diagnostico);
-      setOpenDiagnosticosDialog(false);
+      const selection = quill.getSelection();
+      if (selection) {
+        cursorIndexRef.current = selection.index;
+      }
     }
+    setOpenDiagnosticosDialog(true);
   };
+
+  const insertText = (diagnostico: string) => {
+    const quill = editorRef.current?.getQuill();
+    if (quill && cursorIndexRef.current !== null) {
+      quill.insertText(cursorIndexRef.current, diagnostico);
+      quill.setSelection(cursorIndexRef.current + diagnostico.length);
+      cursorIndexRef.current = null; // limpa depois de usar
+    }
+    setOpenDiagnosticosDialog(false);
+  };
+
 
   const FormSchema = z.object({
     name: z.string().min(10, {
