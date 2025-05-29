@@ -48,7 +48,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format, /*lightFormat*/ subDays } from "date-fns"
+import { format, lightFormat, subDays } from "date-fns"
 import { CalendarIcon, PrinterIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
 import { Toaster } from "@/components/ui/toaster";
@@ -68,7 +68,7 @@ function Prints() {
   const [loading, setLoading] = useState(false);
   const [loadingPrintRequest, setLoadingPrintRequest] = useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>({
-    from: subDays(new Date(), 7),
+    from: subDays(new Date(), 30),
     to: new Date(),
   });
   const { setLaudo } = useContext(UserContext);
@@ -231,15 +231,15 @@ function Prints() {
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
-    // const initial = date?.from ? new Date(date.from) : new Date();
-    // const final = date?.to ? new Date(date.to) : new Date();
+    const initial = date?.from ? new Date(date.from) : new Date();
+    const final = date?.to ? new Date(date.to) : new Date();
 
     const laudoData = {
-      nomePaciente: data.nomePaciente.toUpperCase(),
-      nroLaudo: data.nroLaudo ? Number(data.nroLaudo) : null
-      // datNascimento: data.datNascimento,
-      // dat_inicio_inclusao: date ? `${lightFormat(new Date(initial), 'yyyy-MM-dd')}T00:00:00.933Z` : null,
-      // dat_fim_inclusao: date ? `${lightFormat(new Date(final), 'yyyy-MM-dd')}T23:59:00.933Z` : null,
+      nroLaudo: data.nroLaudo ? Number(data.nroLaudo) : null,
+      nomePaciente: data.nomePaciente?.length > 0 ? data.nomePaciente.toUpperCase() : null,
+      datNascimento: data.datNascimento.length > 0 ? data.datNascimento : null,
+      datInclusaoInicial: date ? `${lightFormat(new Date(initial), 'yyyy-MM-dd')}T00:00:00.933Z` : null,
+      datInclusaoFinal: date ? `${lightFormat(new Date(final), 'yyyy-MM-dd')}T23:59:00.933Z` : null,
     }
 
     api.post("/Laudo/filter", laudoData)
