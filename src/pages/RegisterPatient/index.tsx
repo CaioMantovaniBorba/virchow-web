@@ -64,7 +64,10 @@ function RegisterPatient() {
     name: z.string().min(8, {
       message: "Insira o nome do paciente.",
     }),
-    estadoCivil: z.string(),
+    estadoCivil: z.object({
+      id: z.number(),
+      descricao: z.string(),
+    }),
     sexo: z.string().min(1, {
       message: "Insira seu sexo."
     }),
@@ -79,8 +82,6 @@ function RegisterPatient() {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: "",
-      estadoCivil: "",
-      sexo: "",
       datNascimento: "",
       profissao: "",
       procedencia: ""
@@ -102,8 +103,8 @@ function RegisterPatient() {
     const pacienteData = {
       nome: data.name.toUpperCase(),
       estadoCivil: {
-        id: 1,
-        descricao: "Solteiro"
+        id: data.estadoCivil.id,
+        descricao: data.estadoCivil.descricao
       },
       sexo: data.sexo,
       datNascimento: `${data.datNascimento}T00:00:00.000Z`,
@@ -173,18 +174,23 @@ function RegisterPatient() {
                       control={form.control}
                       name="estadoCivil"
                       render={({ field }) => (
-                        <FormItem className='text-left'>
-                          <FormLabel className='text-lg'>Estado Civil</FormLabel>
+                        <FormItem className="text-left">
+                          <FormLabel className="text-lg">Estado Civil</FormLabel>
                           <FormControl>
                             <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
+                              onValueChange={(value) => {
+                                const selected = estadoCivil.find(
+                                  (item) => item.id.toString() === value
+                                );
+                                if (selected) field.onChange(selected);
+                              }}
+                              value={field.value?.id?.toString() ?? ""}
                             >
                               <SelectTrigger>
                                 <SelectValue
                                   placeholder="Selecione"
                                   children={
-                                    estadoCivil.find((item) => item.id === field.value)?.descricao
+                                    field.value?.descricao ?? "Selecione"
                                   }
                                 />
                               </SelectTrigger>

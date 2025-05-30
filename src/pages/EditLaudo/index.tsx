@@ -231,7 +231,12 @@ function EditLaudo() {
       message: "Insira o resumo clínico."
     }),
     datUltimaMenstruacao: z.string().optional(),
-    tiposLaudo: z.string()
+    tiposLaudo: z.object({
+      id: z.number(),
+      nome: z.string(),
+      descricao: z.string(),
+      topicosList: z.array(z.string()),
+    })
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -247,10 +252,11 @@ function EditLaudo() {
       resumoClinico: laudo?.resumoClinico,
       datNascimento: laudo?.datNascimento?.slice(0, 10),
       datUltimaMenstruacao: laudo?.datUltimaMenstruacao?.slice(0, 10),
+      tiposLaudo: laudo.exame
     },
   });
 
-  const selectedTipoLaudoId = form.watch("tiposLaudo");
+  const selectedTipoLaudoId = form.watch("tiposLaudo.id");
 
   useEffect(() => {
     if (selectedTipoLaudoId) {
@@ -537,18 +543,28 @@ function EditLaudo() {
                       control={form.control}
                       name="tiposLaudo"
                       render={({ field }) => (
-                        <FormItem className='text-left'>
-                          <FormLabel className='text-lg'>Tipo de laudo</FormLabel>
+                        <FormItem className="text-left">
+                          <FormLabel className="text-lg">Tipo de laudo</FormLabel>
                           <FormControl>
-                            <Select onValueChange={field.onChange}>
+                            <Select
+                              onValueChange={(value) => {
+                                const selected = tiposLaudo.find(item => item.id.toString() === value);
+                                if (selected) field.onChange(selected);
+                              }}
+                              value={field.value?.id?.toString() ?? ""}
+                            >
                               <SelectTrigger>
-                                <SelectValue placeholder="Selecione" />
+                                <SelectValue placeholder="Selecione">
+                                  {field.value?.nome ?? "Selecione"}
+                                </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectGroup>
                                   <SelectLabel>Tipo de laudo</SelectLabel>
-                                  {tiposLaudo.map(item => (
-                                    <SelectItem value={item.id}>{item.nome}</SelectItem>
+                                  {tiposLaudo.map((item) => (
+                                    <SelectItem key={item.id} value={item.id.toString()}>
+                                      {item.nome}
+                                    </SelectItem>
                                   ))}
                                 </SelectGroup>
                               </SelectContent>
@@ -558,6 +574,7 @@ function EditLaudo() {
                         </FormItem>
                       )}
                     />
+
                   </div>
 
                   <div className="w-1/3">

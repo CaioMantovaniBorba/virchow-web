@@ -72,7 +72,10 @@ function EditPatient() {
     name: z.string().min(10, {
       message: "Insira o nome do paciente.",
     }),
-    estadoCivil: z.string(),
+    estadoCivil: z.object({
+      id: z.number(),
+      descricao: z.string(),
+    }),
     sexo: z.string().min(1, {
       message: "Insira seu sexo."
     }),
@@ -87,7 +90,7 @@ function EditPatient() {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: patient?.nome,
-      estadoCivil: patient?.estadoCivil.descricao,
+      estadoCivil: patient?.estadoCivil ?? null,
       sexo: patient?.sexo,
       datNascimento: patient?.datNascimento?.slice(0, 10),
       profissao: patient?.profissao,
@@ -101,7 +104,8 @@ function EditPatient() {
       data.sexo === patient.sexo &&
       data.datNascimento === patient.datNascimento?.slice(0, 10) &&
       data.profissao === patient.profissao &&
-      data.procedencia === patient.procedencia
+      data.procedencia === patient.procedencia &&
+      data.estadoCivil.id === patient.estadoCivil.id
     ) {
       return alert("Nenhum dado do paciente foi alterado!");
     }
@@ -120,8 +124,8 @@ function EditPatient() {
       id: patient?.id,
       nome: data.name.toUpperCase(),
       estadoCivil: {
-        id: patient?.estadoCivil.id,
-        descricao: patient?.estadoCivil.descricao
+        id: data?.estadoCivil.id,
+        descricao: data?.estadoCivil.descricao
       },
       sexo: data.sexo,
       datNascimento: data.datNascimento,
@@ -188,20 +192,20 @@ function EditPatient() {
                       control={form.control}
                       name="estadoCivil"
                       render={({ field }) => (
-                        <FormItem className='text-left'>
-                          <FormLabel className='text-lg'>Estado Civil</FormLabel>
+                        <FormItem className="text-left">
+                          <FormLabel className="text-lg">Estado Civil</FormLabel>
                           <FormControl>
                             <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
+                              onValueChange={(value) => {
+                                const selected = estadoCivil.find(item => item.id.toString() === value);
+                                if (selected) field.onChange(selected);
+                              }}
+                              value={field.value?.id?.toString() ?? ""}
                             >
                               <SelectTrigger>
-                                <SelectValue
-                                  placeholder="Selecione"
-                                  children={
-                                    estadoCivil.find((item) => item.id === field.value)?.descricao
-                                  }
-                                />
+                                <SelectValue placeholder="Selecione">
+                                  {field.value?.descricao ?? "Selecione"}
+                                </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectGroup>
@@ -219,6 +223,8 @@ function EditPatient() {
                         </FormItem>
                       )}
                     />
+
+
                   </div>
 
                   <div className="w-1/3">
@@ -229,9 +235,18 @@ function EditPatient() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Sexo</FormLabel>
                           <FormControl>
-                            <Select onValueChange={field.onChange}>
+                            <Select onValueChange={field.onChange} value={field.value}>
                               <SelectTrigger>
-                                <SelectValue placeholder="Selecione" />
+                                <SelectValue
+                                  placeholder="Selecione"
+                                  children={
+                                    field.value === "M"
+                                      ? "Masculino"
+                                      : field.value === "F"
+                                        ? "Feminino"
+                                        : "Selecione"
+                                  }
+                                />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectGroup>
