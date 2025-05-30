@@ -223,7 +223,7 @@ function EditLaudo() {
     }),
     profissao: z.string(),
     procedencia: z.string(),
-    medicoRequisitante: z.string().optional(),
+    medicoRequisitante: z.string().nullable().optional(),
     hipoteseDiagnostica: z.string().min(10, {
       message: "Insira o hipótese diagnóstica."
     }),

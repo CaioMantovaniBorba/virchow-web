@@ -139,6 +139,8 @@ function Login() {
             </form>
           </Form>
         </div>
+
+        <span className="text-sm text-center font-semibold text-gray-400">Desenvolvido por Caio e João</span>
       </div>
     </div>
   )
