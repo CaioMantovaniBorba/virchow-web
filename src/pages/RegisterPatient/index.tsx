@@ -71,12 +71,8 @@ function RegisterPatient() {
     datNascimento: z.string().min(10, {
       message: "Insira a data de nascimento.",
     }),
-    profissao: z.string().min(10, {
-      message: "Insira a profissão."
-    }),
-    procedencia: z.string().min(4, {
-      message: "Insira a procedência."
-    })
+    profissao: z.string().optional(),
+    procedencia: z.string().optional(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -112,7 +108,7 @@ function RegisterPatient() {
       sexo: data.sexo,
       datNascimento: `${data.datNascimento}T00:00:00.000Z`,
       profissao: data.profissao.toUpperCase(),
-      procedencia: data.procedencia.toUpperCase()
+      procedencia: data.procedencia.toUpperCase(),
     }
     api.post("/Paciente", pacienteData)
       .then(() => {

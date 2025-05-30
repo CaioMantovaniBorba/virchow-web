@@ -223,9 +223,7 @@ function EditLaudo() {
     }),
     profissao: z.string(),
     procedencia: z.string(),
-    medicoRequisitante: z.string().min(5, {
-      message: "Insira o médico requisitante."
-    }),
+    medicoRequisitante: z.string().optional(),
     hipoteseDiagnostica: z.string().min(10, {
       message: "Insira o hipótese diagnóstica."
     }),
@@ -248,6 +246,7 @@ function EditLaudo() {
       hipoteseDiagnostica: laudo?.hipoteseDiagnostica,
       resumoClinico: laudo?.resumoClinico,
       datNascimento: laudo?.datNascimento?.slice(0, 10),
+      datUltimaMenstruacao: laudo?.datUltimaMenstruacao?.slice(0, 10),
     },
   });
 
@@ -274,6 +273,9 @@ function EditLaudo() {
     const laudoData = {
       nomePaciente: data.name,
       idade: age.number.toString(),
+      sexo: data.sexo,
+      profissao: data.profissao,
+      procedencia: data.procedencia,
       estadoCivil: data.estadoCivil,
       resumoClinico: data.resumoClinico,
       hipoteseDiagnostica: data.hipoteseDiagnostica,
@@ -282,7 +284,7 @@ function EditLaudo() {
       medicoRequisitante: data.medicoRequisitante,
       datExame: currentDate,
       desLaudo: descricaoLaudo,
-      exameId: 1
+      exameId: parseInt(selectedTipoLaudoId)
     }
 
     api.put(`/Laudo/${laudo.id}`, laudoData)

@@ -246,9 +246,7 @@ function RequestExaminations() {
     }),
     profissao: z.string(),
     procedencia: z.string(),
-    medicoRequisitante: z.string().min(5, {
-      message: "Insira o médico requisitante."
-    }),
+    medicoRequisitante: z.string().optional(),
     hipoteseDiagnostica: z.string().min(10, {
       message: "Insira o hipótese diagnóstica."
     }),
@@ -292,22 +290,23 @@ function RequestExaminations() {
     const currentDate = new Date();
 
     const laudoData = {
-      // id: 0,
       nomePaciente: data.name,
       idade: age.number.toString(),
       estadoCivil: data.estadoCivil,
       sexo: patient.sexo,
       profissao: patient.profissao,
-      procedencia: patient.profissao,
+      procedencia: patient.procedencia,
       resumoClinico: data.resumoClinico,
       hipoteseDiagnostica: data.hipoteseDiagnostica,
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
       datNascimento: `${data.datNascimento}T00:00:00.000Z`,
-      medicoRequisitante: data.medicoRequisitante,
+      medicoRequisitante: data.medicoRequisitante ? data.medicoRequisitante : null,
       datExame: currentDate,
       desLaudo: descricaoLaudo,
-      exameId: 1
+      exameId: parseInt(selectedTipoLaudoId)
     }
+
+    console.log(laudoData);
 
     api.post("/Laudo", laudoData)
       .then(response => {
