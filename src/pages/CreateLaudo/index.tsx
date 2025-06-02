@@ -247,12 +247,7 @@ function RequestExaminations() {
     profissao: z.string(),
     procedencia: z.string(),
     medicoRequisitante: z.string().optional(),
-    hipoteseDiagnostica: z.string().min(10, {
-      message: "Insira o hipótese diagnóstica."
-    }),
-    resumoClinico: z.string().min(10, {
-      message: "Insira o resumo clínico."
-    }),
+    resumoClinico: z.string().optional(),
     datUltimaMenstruacao: z.string().optional(),
     tiposLaudo: z.string()
   });
@@ -297,7 +292,6 @@ function RequestExaminations() {
       profissao: patient.profissao,
       procedencia: patient.procedencia,
       resumoClinico: data.resumoClinico,
-      hipoteseDiagnostica: data.hipoteseDiagnostica,
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
       datNascimento: `${data.datNascimento}T00:00:00.000Z`,
       medicoRequisitante: data.medicoRequisitante ? data.medicoRequisitante : null,
@@ -599,22 +593,6 @@ function RequestExaminations() {
 
                   <div className="w-1/3">
                   </div>
-                </div>
-
-                <div className="w-full">
-                  <FormField
-                    control={form.control}
-                    name="hipoteseDiagnostica"
-                    render={({ field }) => (
-                      <FormItem className='text-left'>
-                        <FormLabel className='text-lg'>Hipótese Diagnóstica</FormLabel>
-                        <FormControl>
-                          <Textarea className="pl-2 w-full uppercase" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
 
                 <div className="w-full">

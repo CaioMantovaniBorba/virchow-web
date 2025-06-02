@@ -224,12 +224,7 @@ function EditLaudo() {
     profissao: z.string(),
     procedencia: z.string(),
     medicoRequisitante: z.string().nullable().optional(),
-    hipoteseDiagnostica: z.string().min(10, {
-      message: "Insira o hipótese diagnóstica."
-    }),
-    resumoClinico: z.string().min(10, {
-      message: "Insira o resumo clínico."
-    }),
+    resumoClinico: z.string().optional(),
     datUltimaMenstruacao: z.string().optional(),
     tiposLaudo: z.object({
       id: z.number(),
@@ -248,7 +243,6 @@ function EditLaudo() {
       profissao: laudo?.profissao,
       procedencia: laudo?.procedencia,
       medicoRequisitante: laudo?.medicoRequisitante,
-      hipoteseDiagnostica: laudo?.hipoteseDiagnostica,
       resumoClinico: laudo?.resumoClinico,
       datNascimento: laudo?.datNascimento?.slice(0, 10),
       datUltimaMenstruacao: laudo?.datUltimaMenstruacao?.slice(0, 10),
@@ -284,7 +278,6 @@ function EditLaudo() {
       procedencia: data.procedencia,
       estadoCivil: data.estadoCivil,
       resumoClinico: data.resumoClinico,
-      hipoteseDiagnostica: data.hipoteseDiagnostica,
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
       datNascimento: `${data.datNascimento}T00:00:00.000Z`,
       medicoRequisitante: data.medicoRequisitante,
@@ -595,22 +588,6 @@ function EditLaudo() {
 
                   <div className="w-1/3">
                   </div>
-                </div>
-
-                <div className="w-full">
-                  <FormField
-                    control={form.control}
-                    name="hipoteseDiagnostica"
-                    render={({ field }) => (
-                      <FormItem className='text-left'>
-                        <FormLabel className='text-lg'>Hipótese Diagnóstica</FormLabel>
-                        <FormControl>
-                          <Textarea className="pl-2 w-full uppercase" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
 
                 <div className="w-full">

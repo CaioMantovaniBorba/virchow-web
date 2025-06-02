@@ -67,13 +67,11 @@ function RegisterPatient() {
     estadoCivil: z.object({
       id: z.number(),
       descricao: z.string(),
-    }),
+    }).optional(),
     sexo: z.string().min(1, {
       message: "Insira seu sexo."
     }),
-    datNascimento: z.string().min(10, {
-      message: "Insira a data de nascimento.",
-    }),
+    datNascimento: z.string().optional(),
     profissao: z.string().optional(),
     procedencia: z.string().optional(),
   });

@@ -8,7 +8,6 @@ export type LaudoType = {
   procedencia: string,
   profissao: string,
   resumoClinico: string,
-  hipoteseDiagnostica: string,
   datUltimaMenstruacao: string,
   medicoRequisitante: string,
   datExame: string,
