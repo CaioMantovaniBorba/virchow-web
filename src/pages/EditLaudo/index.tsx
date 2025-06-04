@@ -716,10 +716,10 @@ function EditLaudo() {
           <div className="flex flex-col justify-center overflow-y-auto max-h-80 space-y-2">
             <div className="flex w-1/2">
               <Input
-                placeholder="Filtrar pelo código"
-                value={(table.getColumn("codigo")?.getFilterValue() as string) ?? ""}
+                placeholder="Filtrar pela descrição"
+                value={(table.getColumn("conteudo")?.getFilterValue() as string) ?? ""}
                 onChange={(event) =>
-                  table.getColumn("codigo")?.setFilterValue(event.target.value)
+                  table.getColumn("conteudo")?.setFilterValue(event.target.value)
                 }
                 className="max-w-md"
               />
