@@ -18,5 +18,6 @@ export type LaudoType = {
 		topicosList: []
 	},
   desLaudo: string,
-  tipoLaudoId: number
+  tipoLaudoId: number,
+  nroLaudo: number
 }

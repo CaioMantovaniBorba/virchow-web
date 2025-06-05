@@ -230,6 +230,12 @@ function EditLaudo() {
       nome: z.string(),
       descricao: z.string(),
       topicosList: z.array(z.string()),
+    }),
+    nroLaudo: z.coerce.number().min(1, {
+      message: "Insira o número do laudo.",
+    }),
+    datExame: z.string().min(10, {
+      message: "Insira a data do exame.",
     })
   });
 
@@ -245,7 +251,9 @@ function EditLaudo() {
       resumoClinico: laudo?.resumoClinico,
       datNascimento: laudo?.datNascimento?.slice(0, 10),
       datUltimaMenstruacao: laudo?.datUltimaMenstruacao?.slice(0, 10),
-      tiposLaudo: laudo.exame
+      tiposLaudo: laudo?.exame,
+      nroLaudo: laudo?.nroLaudo,
+      datExame: laudo?.datExame?.slice(0, 10)
     },
   });
 
@@ -282,7 +290,8 @@ function EditLaudo() {
       medicoRequisitante: data.medicoRequisitante,
       datExame: currentDate,
       desLaudo: descricaoLaudo,
-      exameId: parseInt(selectedTipoLaudoId)
+      exameId: parseInt(selectedTipoLaudoId),
+      nroLaudo: data.nroLaudo
     }
 
     api.put(`/Laudo/${laudo.id}`, laudoData)
@@ -292,7 +301,10 @@ function EditLaudo() {
           navigate("/impressoes");
         }, 1000);
       })
-      .catch(() => {
+      .catch((response) => {
+        if (response.status == 409) {
+          return toast.error("Esse número de laudo já existe!");
+        }
         toast.error("Não foi possível atualizar o laudo!");
       })
       .finally(() => {
@@ -424,7 +436,7 @@ function EditLaudo() {
                 </div>
 
                 <div className="flex w-full space-x-8">
-                  <div className="w-1/3">
+                  <div className="w-1/4">
                     <FormField
                       control={form.control}
                       name="datNascimento"
@@ -450,7 +462,7 @@ function EditLaudo() {
                     />
                   </div>
 
-                  <div className="w-1/3">
+                  <div className="w-1/4">
                     <label htmlFor="age" className="block text-lg font-medium mb-1">
                       Idade
                     </label>
@@ -464,7 +476,7 @@ function EditLaudo() {
                     />
                   </div>
 
-                  <div className="w-1/3">
+                  <div className="w-1/4">
                     <FormField
                       control={form.control}
                       name="profissao"
@@ -479,10 +491,8 @@ function EditLaudo() {
                       )}
                     />
                   </div>
-                </div>
 
-                <div className="flex w-full space-x-8">
-                  <div className="w-1/3">
+                  <div className="w-1/4">
                     <FormField
                       control={form.control}
                       name="procedencia"
@@ -491,6 +501,49 @@ function EditLaudo() {
                           <FormLabel className='text-lg'>Procedência</FormLabel>
                           <FormControl>
                             <Input className="pl-2 w-full uppercase" disabled {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex w-full space-x-8">
+                  <div className="w-1/3">
+                    <FormField
+                      control={form.control}
+                      name="nroLaudo"
+                      render={({ field }) => (
+                        <FormItem className='text-left'>
+                          <FormLabel className='text-lg'>Número de laudo</FormLabel>
+                          <FormControl>
+                            <Input className="pl-2 w-full uppercase" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="w-1/3">
+                    <FormField
+                      control={form.control}
+                      name="datExame"
+                      render={({ field }) => (
+                        <FormItem className='text-left'>
+                          <FormLabel className='text-lg max-sm:text-sm'>Data Exame</FormLabel>
+                          <FormControl>
+                            <Input
+                              className="pl-2 w-full"
+                              type="date"
+                              {...field}
+                              onChange={(e) => {
+                                if (e.target.value.length <= 10) {
+                                  field.onChange(e);
+                                }
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -515,9 +568,6 @@ function EditLaudo() {
                       />
                     </div>
                   }
-
-                  <div className="w-1/3">
-                  </div>
                 </div>
 
                 <div className="flex w-full space-x-8">
@@ -588,7 +638,7 @@ function EditLaudo() {
                       <FormItem className='text-left'>
                         <FormLabel className='text-lg'>Resumo Clínico</FormLabel>
                         <FormControl>
-                          <Textarea className="pl-2 w-full uppercase" {...field} />
+                          <Textarea className="pl-2 w-full uppercase h-[200px]" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

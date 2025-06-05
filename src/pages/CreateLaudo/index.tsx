@@ -232,7 +232,6 @@ function RequestExaminations() {
     setOpenDiagnosticosDialog(false);
   };
 
-
   const FormSchema = z.object({
     name: z.string().min(10, {
       message: "Insira o nome do paciente.",
@@ -249,7 +248,13 @@ function RequestExaminations() {
     medicoRequisitante: z.string().optional(),
     resumoClinico: z.string().optional(),
     datUltimaMenstruacao: z.string().optional(),
-    tiposLaudo: z.string()
+    tiposLaudo: z.string(),
+    nroLaudo: z.coerce.number().min(1, {
+      message: "Insira o número do laudo.",
+    }),
+    datExame: z.string().min(10, {
+      message: "Insira a data do exame.",
+    })
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -295,9 +300,10 @@ function RequestExaminations() {
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
       datNascimento: `${data.datNascimento}T00:00:00.000Z`,
       medicoRequisitante: data.medicoRequisitante ? data.medicoRequisitante : null,
-      datExame: currentDate,
       desLaudo: descricaoLaudo,
-      exameId: parseInt(selectedTipoLaudoId)
+      exameId: parseInt(selectedTipoLaudoId),
+      nroLaudo: data.nroLaudo,
+      datExame: data.datExame
     }
 
     console.log(laudoData);
@@ -315,6 +321,9 @@ function RequestExaminations() {
               }
             })
             .catch(() => {
+              if (response.status == 409) {
+                return toast.error("Esse número de laudo já existe!");
+              }
               toast.error("Não foi possível gerar a impressão!");
             })
         }, 1000);
@@ -429,7 +438,7 @@ function RequestExaminations() {
                 </div>
 
                 <div className="flex w-full space-x-8">
-                  <div className="w-1/3">
+                  <div className="w-1/4">
                     <FormField
                       control={form.control}
                       name="datNascimento"
@@ -455,7 +464,7 @@ function RequestExaminations() {
                     />
                   </div>
 
-                  <div className="w-1/3">
+                  <div className="w-1/4">
                     <label htmlFor="age" className="block text-lg font-medium mb-1">
                       Idade
                     </label>
@@ -469,7 +478,7 @@ function RequestExaminations() {
                     />
                   </div>
 
-                  <div className="w-1/3">
+                  <div className="w-1/4">
                     <FormField
                       control={form.control}
                       name="profissao"
@@ -484,10 +493,8 @@ function RequestExaminations() {
                       )}
                     />
                   </div>
-                </div>
 
-                <div className="flex w-full space-x-8">
-                  <div className="w-1/3">
+                  <div className="w-1/4">
                     <FormField
                       control={form.control}
                       name="procedencia"
@@ -496,6 +503,49 @@ function RequestExaminations() {
                           <FormLabel className='text-lg'>Procedência</FormLabel>
                           <FormControl>
                             <Input className="pl-2 w-full uppercase" disabled {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex w-full space-x-8">
+                  <div className="w-1/3">
+                    <FormField
+                      control={form.control}
+                      name="nroLaudo"
+                      render={({ field }) => (
+                        <FormItem className='text-left'>
+                          <FormLabel className='text-lg'>Número de laudo</FormLabel>
+                          <FormControl>
+                            <Input className="pl-2 w-full uppercase" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="w-1/3">
+                    <FormField
+                      control={form.control}
+                      name="datExame"
+                      render={({ field }) => (
+                        <FormItem className='text-left'>
+                          <FormLabel className='text-lg max-sm:text-sm'>Data Exame</FormLabel>
+                          <FormControl>
+                            <Input
+                              className="pl-2 w-full"
+                              type="date"
+                              {...field}
+                              onChange={(e) => {
+                                if (e.target.value.length <= 10) {
+                                  field.onChange(e);
+                                }
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -520,9 +570,6 @@ function RequestExaminations() {
                       />
                     </div>
                   }
-
-                  <div className="w-1/3">
-                  </div>
                 </div>
 
                 <div className="flex w-full space-x-8">
@@ -594,7 +641,7 @@ function RequestExaminations() {
                       <FormItem className='text-left'>
                         <FormLabel className='text-lg'>Resumo Clínico</FormLabel>
                         <FormControl>
-                          <Textarea className="pl-2 w-full uppercase" {...field} />
+                          <Textarea className="pl-2 w-full uppercase h-[200px]" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
