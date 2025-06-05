@@ -512,16 +512,7 @@ function RequestExaminations() {
                           <FormItem className='text-left'>
                             <FormLabel className='text-lg max-sm:text-sm'>Data da última menstruação</FormLabel>
                             <FormControl>
-                              <Input
-                                className="pl-2 w-full"
-                                type="date"
-                                {...field}
-                                onChange={(e) => {
-                                  if (e.target.value.length <= 10) {
-                                    field.onChange(e);
-                                  }
-                                }}
-                              />
+                              <Input className="pl-2 w-full uppercase" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>

@@ -29,7 +29,7 @@ function Header() {
         <NavLink
           to="/"
           className={() =>
-            `${isLaudoRoute() ? "bg-[#197791]/50" : "bg-[#197791]"} ${baseStyle}`
+            `${isLaudoRoute() ? "bg-[#197791]/50 border" : "bg-[#197791]"} ${baseStyle}`
           }
         >
           INCLUIR LAUDO
@@ -38,7 +38,7 @@ function Header() {
         <NavLink
           to="/cadastropaciente"
           className={() =>
-            `${isPacienteRoute() ? "bg-[#197791]/50" : "bg-[#197791]"} ${baseStyle}`
+            `${isPacienteRoute() ? "bg-[#197791]/50 border" : "bg-[#197791]"} ${baseStyle}`
           }
         >
           PACIENTES
@@ -47,7 +47,7 @@ function Header() {
         <NavLink
           to="/impressoes"
           className={({ isActive }) =>
-            `${isActive ? "bg-[#197791]/50" : "bg-[#197791]"} ${baseStyle}`
+            `${isActive ? "bg-[#197791]/50 border" : "bg-[#197791]"} ${baseStyle}`
           }
         >
           IMPRESSOS
