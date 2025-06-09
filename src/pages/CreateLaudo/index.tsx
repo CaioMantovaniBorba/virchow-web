@@ -185,7 +185,7 @@ function RequestExaminations() {
     const selectedLaudo = tiposLaudo.find(item => item.id.toString() === value);
     if (selectedLaudo) {
       const htmlTopicos = selectedLaudo.topicosList
-        .map(t => `<p>${t}</p><br />`)
+        .map(t => `<p>${t}</p><br /><br />`)
         .join('');
 
       setDescricaoLaudo(htmlTopicos);
