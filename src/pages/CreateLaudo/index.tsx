@@ -254,7 +254,8 @@ function RequestExaminations() {
     }),
     datExame: z.string().min(10, {
       message: "Insira a data do exame.",
-    })
+    }),
+    idade: z.string().optional()
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -291,7 +292,6 @@ function RequestExaminations() {
 
     const laudoData = {
       nomePaciente: data.name,
-      idade: age.number.toString(),
       estadoCivil: data.estadoCivil,
       sexo: patient.sexo,
       profissao: patient.profissao,
@@ -303,7 +303,8 @@ function RequestExaminations() {
       desLaudo: descricaoLaudo,
       exameId: parseInt(selectedTipoLaudoId),
       nroLaudo: data.nroLaudo,
-      datExame: data.datExame
+      datExame: data.datExame,
+      idade: data.idade
     }
 
     console.log(laudoData);
@@ -366,7 +367,7 @@ function RequestExaminations() {
   }
 
   useEffect(() => {
-    calculateAge(patient.datNascimento.slice(0, 10));
+    calculateAge(patient?.datNascimento?.slice(0, 10));
   }, [patient.datNascimento])
 
   return (
@@ -438,25 +439,15 @@ function RequestExaminations() {
                 </div>
 
                 <div className="flex w-full space-x-8">
-                  <div className="w-1/4">
+                  <div className="w-1/3">
                     <FormField
                       control={form.control}
-                      name="datNascimento"
+                      name="idade"
                       render={({ field }) => (
                         <FormItem className='text-left'>
-                          <FormLabel className='text-lg max-sm:text-sm'>Data Nascimento</FormLabel>
+                          <FormLabel className='text-lg'>Idade</FormLabel>
                           <FormControl>
-                            <Input
-                              className="pl-2 w-full"
-                              type="date"
-                              {...field}
-                              onChange={(e) => {
-                                if (e.target.value.length <= 10) {
-                                  field.onChange(e);
-                                }
-                              }}
-                              disabled
-                            />
+                            <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -464,21 +455,7 @@ function RequestExaminations() {
                     />
                   </div>
 
-                  <div className="w-1/4">
-                    <label htmlFor="age" className="block text-lg font-medium mb-1">
-                      Idade
-                    </label>
-                    <input
-                      id="age"
-                      name="age"
-                      type="undefined"
-                      value={age.type === "M" ? `${age.number} meses` : `${age.number} anos`}
-                      disabled
-                      className="block p-2 w-full rounded-sm border-0 py-1.5 bg-transparent text-gray-400 shadow-sm ring-1 ring-inset ring-gray-100 sm:text-sm sm:leading-6"
-                    />
-                  </div>
-
-                  <div className="w-1/4">
+                  <div className="w-1/3">
                     <FormField
                       control={form.control}
                       name="profissao"
@@ -494,7 +471,7 @@ function RequestExaminations() {
                     />
                   </div>
 
-                  <div className="w-1/4">
+                  <div className="w-1/3">
                     <FormField
                       control={form.control}
                       name="procedencia"
