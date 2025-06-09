@@ -105,7 +105,6 @@ function EditLaudo() {
   const laudoString = localStorage.getItem("laudo");
   const laudo: LaudoBodyType = laudoString ? JSON.parse(laudoString) : null;
 
-  const editorRef = useRef(null);
   const navigate = useNavigate();
 
   const columns: ColumnDef<DiagnosticoType>[] = [
@@ -186,27 +185,57 @@ function EditLaudo() {
           position: "top-right",
         });
       })
+  }, []);
 
-    if (laudo) {
-      setDescricaoLaudo(laudo.desLaudo);
+  const handleTipoLaudoChange = (value: string, fieldOnChange: (value: string) => void) => {
+    const selectedLaudo = tiposLaudo.find(item => item.id.toString() === value);
+    if (selectedLaudo) {
+      const htmlTopicos = selectedLaudo.topicosList
+        .map(t => `<p>${t}</p><br /><br />`)
+        .join('');
+
+      setDescricaoLaudo(htmlTopicos);
     }
+
+    fieldOnChange(value); // atualiza o form
+  };
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.code === "Space") {
-        e.preventDefault(); // evita conflito com autocompletes ou outras ações padrão
+        openDialogAndSaveCursor();
+        e.preventDefault();
         setOpenDiagnosticosDialog(true);
       }
     };
+
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const insertText = (diagnostico: string) => {
+  const editorRef = useRef<any>(null);
+  const cursorIndexRef = useRef<number | null>(null);
+
+  // capturar a posição do cursor
+  const openDialogAndSaveCursor = () => {
     const quill = editorRef.current?.getQuill();
     if (quill) {
-      const cursorPos = quill.getSelection()?.index || 0;
-      quill.insertText(cursorPos, diagnostico);
-      setOpenDiagnosticosDialog(false);
+      const selection = quill.getSelection();
+      if (selection) {
+        cursorIndexRef.current = selection.index;
+      }
     }
+    setOpenDiagnosticosDialog(true);
+  };
+
+  const insertText = (diagnostico: string) => {
+    const quill = editorRef.current?.getQuill();
+    if (quill && cursorIndexRef.current !== null) {
+      quill.insertText(cursorIndexRef.current, diagnostico);
+      quill.setSelection(cursorIndexRef.current + diagnostico.length);
+      cursorIndexRef.current = null; // limpa depois de usar
+    }
+    setOpenDiagnosticosDialog(false);
   };
 
   const FormSchema = z.object({
@@ -558,11 +587,8 @@ function EditLaudo() {
                           <FormLabel className="text-lg">Tipo de laudo</FormLabel>
                           <FormControl>
                             <Select
-                              onValueChange={(value) => {
-                                const selected = tiposLaudo.find(item => item.id.toString() === value);
-                                if (selected) field.onChange(selected);
-                              }}
-                              value={field.value?.id?.toString() ?? ""}
+                              onValueChange={(value) => handleTipoLaudoChange(value, field.onChange)}
+                              value={field.value?.toString() ?? ""}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Selecione">
