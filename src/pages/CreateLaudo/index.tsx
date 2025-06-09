@@ -296,7 +296,7 @@ function RequestExaminations() {
       sexo: patient.sexo,
       profissao: patient.profissao,
       procedencia: patient.procedencia,
-      resumoClinico: data.resumoClinico,
+      resumoClinico: data.resumoClinico ? data.resumoClinico : "",
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
       datNascimento: `${data.datNascimento}T00:00:00.000Z`,
       medicoRequisitante: data.medicoRequisitante ? data.medicoRequisitante : null,
@@ -306,8 +306,6 @@ function RequestExaminations() {
       datExame: data.datExame,
       idade: data.idade
     }
-
-    console.log(laudoData);
 
     api.post("/Laudo", laudoData)
       .then(response => {

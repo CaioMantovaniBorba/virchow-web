@@ -119,7 +119,6 @@ function RegisterPatient() {
         }, 2000);
       })
       .catch((response) => {
-        console.log(response.status);
         if (response.status == 409) {
           return toast.error("Paciente já cadastrado!");
         }
