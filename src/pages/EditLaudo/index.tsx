@@ -242,7 +242,7 @@ function EditLaudo() {
     name: z.string().min(10, {
       message: "Insira o nome do paciente.",
     }),
-    estadoCivil: z.string(),
+    estadoCivil: z.string().optional(),
     sexo: z.string().min(1, {
       message: "Insira seu sexo."
     }),
@@ -314,11 +314,11 @@ function EditLaudo() {
       profissao: data.profissao,
       procedencia: data.procedencia,
       estadoCivil: data.estadoCivil,
-      resumoClinico: data.resumoClinico,
+      resumoClinico: data.resumoClinico ? data.resumoClinico : "",
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
-      datNascimento: `${data.datNascimento}T00:00:00.000Z`,
-      medicoRequisitante: data.medicoRequisitante,
-      datExame: currentDate,
+      datNascimento: data?.datNascimento ? `${data.datNascimento}T00:00:00.000Z` : null,
+      medicoRequisitante: data.medicoRequisitante ? data.medicoRequisitante : null,
+      datExame: data.datExame,
       desLaudo: descricaoLaudo,
       exameId: parseInt(selectedTipoLaudoId),
       nroLaudo: data.nroLaudo,

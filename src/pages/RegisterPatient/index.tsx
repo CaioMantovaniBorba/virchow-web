@@ -100,14 +100,14 @@ function RegisterPatient() {
 
     const pacienteData = {
       nome: data.name.toUpperCase(),
-      estadoCivil: {
-        id: data.estadoCivil.id,
-        descricao: data.estadoCivil.descricao
-      },
-      sexo: data.sexo,
-      datNascimento: `${data.datNascimento}T00:00:00.000Z`,
-      profissao: data.profissao.toUpperCase(),
-      procedencia: data.procedencia.toUpperCase(),
+      estadoCivil: data?.estadoCivil?.id ? {
+        id: data?.estadoCivil?.id,
+        descricao: data?.estadoCivil?.descricao
+      } : null,
+      sexo: data?.sexo ? data?.sexo : null,
+      datNascimento: data?.datNascimento ? `${data.datNascimento}T00:00:00.000Z` : null,
+      profissao: data?.profissao ? data?.profissao?.toUpperCase() : null,
+      procedencia: data?.procedencia ? data?.procedencia?.toUpperCase() : null,
     }
     api.post("/Paciente", pacienteData)
       .then(() => {

@@ -79,9 +79,9 @@ function EditPatient() {
     sexo: z.string().min(1, {
       message: "Insira seu sexo."
     }),
-    datNascimento: z.string().optional(),
-    profissao: z.string(),
-    procedencia: z.string(),
+    datNascimento: z.string().nullable().optional(),
+    profissao: z.string().nullable().optional(),
+    procedencia: z.string().nullable().optional(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -121,14 +121,14 @@ function EditPatient() {
     const pacienteData = {
       id: patient?.id,
       nome: data.name.toUpperCase(),
-      estadoCivil: {
-        id: data?.estadoCivil.id,
-        descricao: data?.estadoCivil.descricao
-      },
-      sexo: data.sexo,
-      datNascimento: data.datNascimento,
-      profissao: data.profissao.toUpperCase(),
-      procedencia: data.procedencia.toUpperCase()
+      estadoCivil: data?.estadoCivil?.id ? {
+        id: data?.estadoCivil?.id,
+        descricao: data?.estadoCivil?.descricao
+      } : null,
+      sexo: data?.sexo ? data?.sexo : null,
+      datNascimento: data?.datNascimento ? `${data.datNascimento}T00:00:00.000Z` : null,
+      profissao: data?.profissao ? data?.profissao?.toUpperCase() : null,
+      procedencia: data?.procedencia ? data?.procedencia?.toUpperCase() : null
     }
 
     api.put(`/Paciente/${patient?.id}`, pacienteData)

@@ -47,7 +47,7 @@ function SelectPatientForLado() {
 
   const formatDate = (date: string) => {
     const dateFormatted = new Date(date);
-    return dateFormatted.toLocaleString().slice(0, 10);
+    return date ? dateFormatted.toLocaleString().slice(0, 10) : null;
   }
 
   const handleNavigate = (patient: PatientType) => {

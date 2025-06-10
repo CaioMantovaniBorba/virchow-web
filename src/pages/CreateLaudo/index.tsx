@@ -236,15 +236,13 @@ function RequestExaminations() {
     name: z.string().min(10, {
       message: "Insira o nome do paciente.",
     }),
-    estadoCivil: z.string(),
+    estadoCivil: z.string().optional(),
     sexo: z.string().min(1, {
       message: "Insira seu sexo."
-    }),
-    datNascimento: z.string().min(10, {
-      message: "Insira a data de nascimento.",
-    }),
-    profissao: z.string(),
-    procedencia: z.string(),
+    }).nullable().optional(),
+    datNascimento: z.string().optional(),
+    profissao: z.string().nullable().optional(),
+    procedencia: z.string().nullable().optional(),
     medicoRequisitante: z.string().optional(),
     resumoClinico: z.string().optional(),
     datUltimaMenstruacao: z.string().optional(),
@@ -262,7 +260,7 @@ function RequestExaminations() {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: patient?.nome,
-      estadoCivil: patient?.estadoCivil.descricao,
+      estadoCivil: patient?.estadoCivil?.descricao,
       sexo: patient?.sexo,
       datNascimento: patient?.datNascimento?.slice(0, 10),
       profissao: patient?.profissao,
@@ -298,7 +296,7 @@ function RequestExaminations() {
       procedencia: patient.procedencia,
       resumoClinico: data.resumoClinico ? data.resumoClinico : "",
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
-      datNascimento: `${data.datNascimento}T00:00:00.000Z`,
+      datNascimento: data?.datNascimento ? `${data.datNascimento}T00:00:00.000Z` : null,
       medicoRequisitante: data.medicoRequisitante ? data.medicoRequisitante : null,
       desLaudo: descricaoLaudo,
       exameId: parseInt(selectedTipoLaudoId),
