@@ -291,7 +291,7 @@ function RequestExaminations() {
     const laudoData = {
       nomePaciente: data.name,
       estadoCivil: data.estadoCivil,
-      sexo: patient.sexo,
+      sexo: patient?.sexo,
       profissao: patient.profissao,
       procedencia: patient.procedencia,
       resumoClinico: data.resumoClinico ? data.resumoClinico : "",
@@ -526,7 +526,7 @@ function RequestExaminations() {
                     />
                   </div>
 
-                  {patient.sexo === "F" &&
+                  {patient?.sexo === "F" &&
                     <div className="w-1/3">
                       <FormField
                         control={form.control}

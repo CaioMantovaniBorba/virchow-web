@@ -316,7 +316,7 @@ function EditLaudo() {
       estadoCivil: data.estadoCivil,
       resumoClinico: data.resumoClinico ? data.resumoClinico : "",
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
-      datNascimento: data?.datNascimento ? `${data.datNascimento}T00:00:00.000Z` : null,
+      datNascimento: data?.datNascimento ? `${data?.datNascimento}T00:00:00.000Z` : null,
       medicoRequisitante: data.medicoRequisitante ? data.medicoRequisitante : null,
       datExame: data.datExame,
       desLaudo: descricaoLaudo,
@@ -395,8 +395,8 @@ function EditLaudo() {
   }
 
   useEffect(() => {
-    calculateAge(patient.datNascimento.slice(0, 10));
-  }, [patient.datNascimento])
+    calculateAge(patient?.datNascimento?.slice(0, 10));
+  }, [patient?.datNascimento])
 
   return (
     <>
@@ -558,7 +558,7 @@ function EditLaudo() {
                     />
                   </div>
 
-                  {patient.sexo === "F" &&
+                  {patient?.sexo === "F" &&
                     <div className="w-1/3">
                       <FormField
                         control={form.control}
