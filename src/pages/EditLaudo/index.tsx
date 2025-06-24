@@ -82,6 +82,11 @@ type Age = {
   type: "M" | "A";
 };
 
+interface EstadoCivilType {
+  id: number;
+  descricao: string;
+}
+
 function EditLaudo() {
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 500 });
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -97,6 +102,7 @@ function EditLaudo() {
   const [descricaoLaudo, setDescricaoLaudo] = useState<string | null>(null);
   const [tiposLaudo, setTiposLaudo] = useState<LaudoType[]>([]);
   const [data, setData] = useState<DiagnosticoType[]>([]);
+  const [estadoCivil, setEstadoCivil] = useState<EstadoCivilType[]>([]);
 
   const patientString = localStorage.getItem("patient");
   const patient: PatientType = patientString ? JSON.parse(patientString) : null;
@@ -238,22 +244,31 @@ function EditLaudo() {
     setOpenDiagnosticosDialog(false);
   };
 
+  useEffect(() => {
+    api.get('/EstadoCivil')
+      .then(response => setEstadoCivil(response.data))
+      .catch(() => {
+        toast.error("Erro ao listar estados civis!", {
+          position: "top-right",
+        });
+      })
+  }, []);
+
   const FormSchema = z.object({
     name: z.string().min(10, {
       message: "Insira o nome do paciente.",
     }),
-    estadoCivil: z.string().optional(),
-    sexo: z.string().min(1, {
-      message: "Insira seu sexo."
-    }),
-    datNascimento: z.string().min(10, {
-      message: "Insira a data de nascimento.",
-    }),
-    profissao: z.string(),
-    procedencia: z.string(),
+    estadoCivil: z.object({
+      id: z.number(),
+      descricao: z.string(),
+    }).optional(),
+    sexo: z.string().nullable().optional(),
+    datNascimento: z.string().optional(),
+    profissao: z.string().nullable().optional(),
+    procedencia: z.string().nullable().optional(),
     medicoRequisitante: z.string().nullable().optional(),
-    resumoClinico: z.string().optional(),
-    datUltimaMenstruacao: z.string().optional(),
+    resumoClinico: z.string().nullable().optional(),
+    datUltimaMenstruacao: z.string().nullable().optional(),
     tiposLaudo: z.object({
       id: z.number(),
       nome: z.string(),
@@ -266,14 +281,14 @@ function EditLaudo() {
     datExame: z.string().min(10, {
       message: "Insira a data do exame.",
     }),
-    idade: z.string().optional()
+    idade: z.string().nullable().optional(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: laudo?.nomePaciente,
-      estadoCivil: laudo?.estadoCivil,
+      estadoCivil: laudo?.estadoCivil ?? null,
       sexo: laudo?.sexo,
       profissao: laudo?.profissao,
       procedencia: laudo?.procedencia,
@@ -309,12 +324,12 @@ function EditLaudo() {
     const currentDate = new Date();
 
     const laudoData = {
-      nomePaciente: data.name,
-      sexo: data.sexo,
-      profissao: data.profissao,
-      procedencia: data.procedencia,
-      estadoCivil: data.estadoCivil,
-      resumoClinico: data.resumoClinico ? data.resumoClinico : "",
+      nomePaciente: data?.name ? data.name : "",
+      estadoCivil: data?.estadoCivil?.id ? data.estadoCivil?.descricao : null,
+      sexo: data?.sexo ? data.sexo : "",
+      profissao: data?.profissao ? data.profissao : "",
+      procedencia: data?.procedencia ? data.procedencia : "",
+      resumoClinico: data?.resumoClinico ? data.resumoClinico : "",
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
       datNascimento: data?.datNascimento ? `${data?.datNascimento}T00:00:00.000Z` : null,
       medicoRequisitante: data.medicoRequisitante ? data.medicoRequisitante : null,
@@ -425,7 +440,7 @@ function EditLaudo() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Nome Paciente</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" disabled {...field} />
+                            <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -438,10 +453,37 @@ function EditLaudo() {
                       control={form.control}
                       name="estadoCivil"
                       render={({ field }) => (
-                        <FormItem className='text-left'>
-                          <FormLabel className='text-lg'>Estado Civil</FormLabel>
+                        <FormItem className="text-left">
+                          <FormLabel className="text-lg">Estado Civil</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" disabled {...field} />
+                            <Select
+                              onValueChange={(value) => {
+                                const selected = estadoCivil.find(
+                                  (item) => item.id.toString() === value
+                                );
+                                if (selected) field.onChange(selected);
+                              }}
+                              value={field.value?.id?.toString() ?? ""}
+                            >
+                              <SelectTrigger>
+                                <SelectValue
+                                  placeholder="Selecione"
+                                  children={
+                                    field.value?.descricao ?? "Selecione"
+                                  }
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectLabel>Estado Civil</SelectLabel>
+                                  {estadoCivil.map((item) => (
+                                    <SelectItem key={item.id} value={item.id.toString()}>
+                                      {item.descricao}
+                                    </SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -457,7 +499,7 @@ function EditLaudo() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Sexo</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" disabled {...field} />
+                            <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -491,7 +533,7 @@ function EditLaudo() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Profissão</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" disabled {...field} />
+                            <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -507,7 +549,7 @@ function EditLaudo() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Procedência</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" disabled {...field} />
+                            <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

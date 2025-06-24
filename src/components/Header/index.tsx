@@ -27,7 +27,7 @@ function Header() {
 
       <ul className="flex space-x-8">
         <NavLink
-          to="/"
+          to="/pedidolaudo"
           className={() =>
             `${isLaudoRoute() ? "bg-[#197791]/50 border" : "bg-[#197791]"} ${baseStyle}`
           }
@@ -35,14 +35,14 @@ function Header() {
           INCLUIR LAUDO
         </NavLink>
 
-        <NavLink
+        {/* <NavLink
           to="/cadastropaciente"
           className={() =>
             `${isPacienteRoute() ? "bg-[#197791]/50 border" : "bg-[#197791]"} ${baseStyle}`
           }
         >
           PACIENTES
-        </NavLink>
+        </NavLink> */}
 
         <NavLink
           to="/impressoes"

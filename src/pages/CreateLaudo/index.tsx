@@ -81,6 +81,11 @@ type Age = {
   type: "M" | "A";
 };
 
+interface EstadoCivilType {
+  id: number;
+  descricao: string;
+}
+
 function RequestExaminations() {
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 500 });
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -95,6 +100,7 @@ function RequestExaminations() {
   const [descricaoLaudo, setDescricaoLaudo] = useState<string | null>(null);
   const [tiposLaudo, setTiposLaudo] = useState<LaudoType[]>([]);
   const [data, setData] = useState<DiagnosticoType[]>([]);
+  const [estadoCivil, setEstadoCivil] = useState<EstadoCivilType[]>([]);
 
   const patientString = localStorage.getItem("patient");
   const patient: PatientType = patientString ? JSON.parse(patientString) : null;
@@ -179,6 +185,14 @@ function RequestExaminations() {
           position: "top-right",
         });
       })
+
+    api.get('/EstadoCivil')
+      .then(response => setEstadoCivil(response.data))
+      .catch(() => {
+        toast.error("Erro ao listar estados civis!", {
+          position: "top-right",
+        });
+      })
   }, []);
 
   const handleTipoLaudoChange = (value: string, fieldOnChange: (value: string) => void) => {
@@ -236,15 +250,16 @@ function RequestExaminations() {
     name: z.string().min(10, {
       message: "Insira o nome do paciente.",
     }),
-    estadoCivil: z.string().optional(),
-    sexo: z.string().min(1, {
-      message: "Insira seu sexo."
-    }).nullable().optional(),
+    estadoCivil: z.object({
+      id: z.number(),
+      descricao: z.string(),
+    }).optional(),
+    sexo: z.string().nullable().optional(),
     datNascimento: z.string().optional(),
     profissao: z.string().nullable().optional(),
     procedencia: z.string().nullable().optional(),
-    medicoRequisitante: z.string().optional(),
-    resumoClinico: z.string().optional(),
+    medicoRequisitante: z.string().nullable().optional(),
+    resumoClinico: z.string().nullable().optional(),
     datUltimaMenstruacao: z.string().optional(),
     tiposLaudo: z.string(),
     nroLaudo: z.coerce.number().min(1, {
@@ -253,18 +268,18 @@ function RequestExaminations() {
     datExame: z.string().min(10, {
       message: "Insira a data do exame.",
     }),
-    idade: z.string().optional()
+    idade: z.string().nullable().optional(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: patient?.nome,
-      estadoCivil: patient?.estadoCivil?.descricao,
-      sexo: patient?.sexo,
-      datNascimento: patient?.datNascimento?.slice(0, 10),
-      profissao: patient?.profissao,
-      procedencia: patient?.procedencia
+      name: "",
+      estadoCivil: "",
+      sexo: "",
+      datNascimento: "",
+      profissao: "",
+      procedencia: "",
     },
   });
 
@@ -289,12 +304,12 @@ function RequestExaminations() {
     const currentDate = new Date();
 
     const laudoData = {
-      nomePaciente: data.name,
-      estadoCivil: data.estadoCivil,
-      sexo: patient?.sexo,
-      profissao: patient.profissao,
-      procedencia: patient.procedencia,
-      resumoClinico: data.resumoClinico ? data.resumoClinico : "",
+      nomePaciente: data?.name ? data.name : "",
+      estadoCivil: data?.estadoCivil?.id ? data.estadoCivil.descricao : null,
+      sexo: data?.sexo ? data.sexo : "",
+      profissao: data?.profissao ? data.profissao : "",
+      procedencia: data?.procedencia ? data.procedencia : "",
+      resumoClinico: data?.resumoClinico ? data.resumoClinico : "",
       datUltimaMenstruacao: data.datUltimaMenstruacao ? data.datUltimaMenstruacao : null,
       datNascimento: data?.datNascimento ? `${data.datNascimento}T00:00:00.000Z` : null,
       medicoRequisitante: data.medicoRequisitante ? data.medicoRequisitante : null,
@@ -302,7 +317,7 @@ function RequestExaminations() {
       exameId: parseInt(selectedTipoLaudoId),
       nroLaudo: data.nroLaudo,
       datExame: data.datExame,
-      idade: data.idade
+      idade: data?.idade ? data.idade : ""
     }
 
     api.post("/Laudo", laudoData)
@@ -314,7 +329,7 @@ function RequestExaminations() {
               const fileURL = URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
               window.open(fileURL);
               if (fileURL) {
-                navigate("/incluirlaudo");
+                navigate("/impressoes");
               }
             })
             .catch(() => {
@@ -393,7 +408,7 @@ function RequestExaminations() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Nome Paciente</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" disabled {...field} />
+                            <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -406,10 +421,37 @@ function RequestExaminations() {
                       control={form.control}
                       name="estadoCivil"
                       render={({ field }) => (
-                        <FormItem className='text-left'>
-                          <FormLabel className='text-lg'>Estado Civil</FormLabel>
+                        <FormItem className="text-left">
+                          <FormLabel className="text-lg">Estado Civil</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" disabled {...field} />
+                            <Select
+                              onValueChange={(value) => {
+                                const selected = estadoCivil.find(
+                                  (item) => item.id.toString() === value
+                                );
+                                if (selected) field.onChange(selected);
+                              }}
+                              value={field.value?.id?.toString() ?? ""}
+                            >
+                              <SelectTrigger>
+                                <SelectValue
+                                  placeholder="Selecione"
+                                  children={
+                                    field.value?.descricao ?? "Selecione"
+                                  }
+                                />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectGroup>
+                                  <SelectLabel>Estado Civil</SelectLabel>
+                                  {estadoCivil.map((item) => (
+                                    <SelectItem key={item.id} value={item.id.toString()}>
+                                      {item.descricao}
+                                    </SelectItem>
+                                  ))}
+                                </SelectGroup>
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -425,7 +467,7 @@ function RequestExaminations() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Sexo</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" disabled {...field} />
+                            <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -459,7 +501,7 @@ function RequestExaminations() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Profissão</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" disabled {...field} />
+                            <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -475,7 +517,7 @@ function RequestExaminations() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Procedência</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" disabled {...field} />
+                            <Input className="pl-2 w-full uppercase" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -670,7 +712,7 @@ function RequestExaminations() {
             <DialogClose>
               <Button className="w-[100px]">Não</Button>
             </DialogClose>
-            <Button className="w-[100px] bg-[#0C647C] hover:bg-[#0C647C]/80" onClick={() => navigate("/incluirlaudo")}>Sim</Button>
+            <Button className="w-[100px] bg-[#0C647C] hover:bg-[#0C647C]/80" onClick={() => navigate("/impressoes")}>Sim</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

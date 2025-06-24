@@ -23,13 +23,13 @@ const Routes: React.FC = () => {
     <UserContext.Provider value={{ user, setUser, patient, setPatient, laudo, setLaudo }}>
       <Router>
         <Route path="/" Component={Login} />
-        <Route path="/incluirlaudo" Component={SelectPatientForLado} />
         <Route path="/pedidolaudo" Component={CreateLaudo} />
         <Route path="/editarlaudo" Component={EditLaudo} />
-        <Route path="/cadastrarpaciente" Component={RegisterPatient} />
-        <Route path="/cadastropaciente" Component={SearchPatient} />
-        <Route path="/editarpaciente" Component={EditPatient} />
         <Route path="/impressoes" Component={Prints} />
+        {/* <Route path="/incluirlaudo" Component={SelectPatientForLado} /> */}
+        {/* <Route path="/cadastrarpaciente" Component={RegisterPatient} /> */}
+        {/* <Route path="/cadastropaciente" Component={SearchPatient} /> */}
+        {/* <Route path="/editarpaciente" Component={EditPatient} /> */}
       </Router>
     </UserContext.Provider>
   )

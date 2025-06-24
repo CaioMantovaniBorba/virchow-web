@@ -42,7 +42,7 @@ function Login() {
   useEffect(() => {
     const signed = localStorage.getItem("token");
     if (signed) {
-      navigate("incluirlaudo");
+      navigate("/impressoes");
     }
   }, []);
 
@@ -61,7 +61,7 @@ function Login() {
         setUser(response.data);
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("usuario", JSON.stringify(response.data.usuario));
-        navigate("/cadastropaciente");
+        navigate("/impressoes");
       })
       .catch(() => {
         toast.error("Erro ao realizar login!", {
