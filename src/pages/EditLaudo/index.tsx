@@ -284,11 +284,15 @@ function EditLaudo() {
     idade: z.string().nullable().optional(),
   });
 
+  const selectedEstadoCivil = estadoCivil.find(
+    (item) => item.descricao === laudo.estadoCivil
+  );
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: laudo?.nomePaciente,
-      estadoCivil: laudo?.estadoCivil ?? null,
+      estadoCivil: selectedEstadoCivil ?? undefined,
       sexo: laudo?.sexo,
       profissao: laudo?.profissao,
       procedencia: laudo?.procedencia,
@@ -326,7 +330,7 @@ function EditLaudo() {
     const laudoData = {
       nomePaciente: data?.name ? data.name : "",
       estadoCivil: data?.estadoCivil?.id ? data.estadoCivil?.descricao : null,
-      sexo: data?.sexo ? data.sexo : "",
+      sexo: data?.sexo ? data.sexo : laudo.sexo,
       profissao: data?.profissao ? data.profissao : "",
       procedencia: data?.procedencia ? data.procedencia : "",
       resumoClinico: data?.resumoClinico ? data.resumoClinico : "",
@@ -334,7 +338,7 @@ function EditLaudo() {
       datNascimento: data?.datNascimento ? `${data?.datNascimento}T00:00:00.000Z` : null,
       medicoRequisitante: data.medicoRequisitante ? data.medicoRequisitante : null,
       datExame: data.datExame,
-      desLaudo: descricaoLaudo,
+      desLaudo: descricaoLaudo ? descricaoLaudo : "",
       exameId: parseInt(selectedTipoLaudoId),
       nroLaudo: data.nroLaudo,
       idade: data.idade
@@ -440,7 +444,7 @@ function EditLaudo() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Nome Paciente</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -458,20 +462,15 @@ function EditLaudo() {
                           <FormControl>
                             <Select
                               onValueChange={(value) => {
-                                const selected = estadoCivil.find(
-                                  (item) => item.id.toString() === value
-                                );
+                                const selected = estadoCivil.find(item => item.id.toString() === value);
                                 if (selected) field.onChange(selected);
                               }}
                               value={field.value?.id?.toString() ?? ""}
                             >
                               <SelectTrigger>
-                                <SelectValue
-                                  placeholder="Selecione"
-                                  children={
-                                    field.value?.descricao ?? "Selecione"
-                                  }
-                                />
+                                <SelectValue placeholder="Selecione">
+                                  {field.value?.descricao ?? "Selecione"}
+                                </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectGroup>

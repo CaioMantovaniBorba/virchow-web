@@ -408,7 +408,7 @@ function RequestExaminations() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Nome Paciente</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
