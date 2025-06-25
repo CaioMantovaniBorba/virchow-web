@@ -195,17 +195,24 @@ function RequestExaminations() {
       })
   }, []);
 
-  const handleTipoLaudoChange = (value: string, fieldOnChange: (value: string) => void) => {
+  const handleTipoLaudoChange = (
+    value: string,
+    fieldOnChange: (value: any) => void
+  ) => {
     const selectedLaudo = tiposLaudo.find(item => item.id.toString() === value);
+
     if (selectedLaudo) {
       const htmlTopicos = selectedLaudo.topicosList
         .map(t => `<p>${t}</p><br /><br />`)
         .join('');
 
       setDescricaoLaudo(htmlTopicos);
-    }
 
-    fieldOnChange(value); // atualiza o form
+      fieldOnChange(selectedLaudo);
+    } else {
+      fieldOnChange(null);
+      setDescricaoLaudo("");
+    }
   };
 
   useEffect(() => {
@@ -269,11 +276,27 @@ function RequestExaminations() {
     medicoRequisitante: z.string().nullable().optional(),
     resumoClinico: z.string().nullable().optional(),
     datUltimaMenstruacao: z.string().optional(),
-    tiposLaudo: z.string(),
-    nroLaudo: z.coerce.number().min(1, {
+    tiposLaudo: z.preprocess(
+      (val) => val === "" ? undefined : val,
+      z.object({
+        id: z.number(),
+        nome: z.string(),
+        descricao: z.string(),
+        topicosList: z.array(z.string()),
+      }, {
+        required_error: "Selecione o tipo de laudo.",
+      })
+    ),
+    nroLaudo: z.coerce.number({
+      required_error: "Insira o número do laudo.",
+      invalid_type_error: "Insira o número do laudo.",
+    }).min(1, {
       message: "Insira o número do laudo.",
     }),
-    datExame: z.string().min(10, {
+    datExame: z.string({
+      required_error: "Insira a data do exame.",
+      invalid_type_error: "Data inválida.",
+    }).min(10, {
       message: "Insira a data do exame.",
     }),
     idade: z.string().nullable().optional(),
@@ -291,11 +314,11 @@ function RequestExaminations() {
     },
   });
 
-  const selectedTipoLaudoId = form.watch("tiposLaudo");
+  const selectedTipoLaudo = form.watch("tiposLaudo");
 
   useEffect(() => {
-    if (selectedTipoLaudoId) {
-      api.get(`/Diagnostico/${selectedTipoLaudoId}`)
+    if (selectedTipoLaudo) {
+      api.get(`/Diagnostico/${selectedTipoLaudo.id}`)
         .then((response) => {
           setData(response.data);
         })
@@ -305,7 +328,7 @@ function RequestExaminations() {
           });
         })
     }
-  }, [selectedTipoLaudoId]);
+  }, [selectedTipoLaudo]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
@@ -322,7 +345,7 @@ function RequestExaminations() {
       datNascimento: data?.datNascimento ? `${data.datNascimento}T00:00:00.000Z` : null,
       medicoRequisitante: data.medicoRequisitante ? data.medicoRequisitante : null,
       desLaudo: descricaoLaudo,
-      exameId: parseInt(selectedTipoLaudoId),
+      exameId: parseInt(selectedTipoLaudo.id),
       nroLaudo: data.nroLaudo,
       datExame: data.datExame,
       idade: data?.idade ? data.idade : ""
@@ -543,7 +566,15 @@ function RequestExaminations() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Número de laudo</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input
+                              type="number"
+                              className="pl-2 w-full uppercase"
+                              value={field.value ?? ""}
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                field.onChange(raw === "" ? undefined : raw);
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -606,17 +637,12 @@ function RequestExaminations() {
                           <FormControl>
                             <Select
                               onValueChange={(value) => handleTipoLaudoChange(value, field.onChange)}
-                              value={field.value?.toString() ?? ""}
+                              value={field.value?.id?.toString() ?? ""}
                             >
                               <SelectTrigger>
-                                <SelectValue
-                                  placeholder="Selecione"
-                                  children={
-                                    tiposLaudo.find(
-                                      item => item.id.toString() === field.value?.toString()
-                                    )?.nome ?? "Selecione"
-                                  }
-                                />
+                                <SelectValue placeholder="Selecione">
+                                  {field.value?.nome ?? "Selecione"}
+                                </SelectValue>
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectGroup>
@@ -634,6 +660,7 @@ function RequestExaminations() {
                         </FormItem>
                       )}
                     />
+
                   </div>
 
                   <div className="w-1/3">

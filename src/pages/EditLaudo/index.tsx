@@ -276,13 +276,21 @@ function EditLaudo() {
     medicoRequisitante: z.string().nullable().optional(),
     resumoClinico: z.string().nullable().optional(),
     datUltimaMenstruacao: z.string().nullable().optional(),
-    tiposLaudo: z.object({
-      id: z.number(),
-      nome: z.string(),
-      descricao: z.string(),
-      topicosList: z.array(z.string()),
-    }),
-    nroLaudo: z.coerce.number().min(1, {
+    tiposLaudo: z.preprocess(
+      (val) => val === "" ? undefined : val,
+      z.object({
+        id: z.number(),
+        nome: z.string(),
+        descricao: z.string(),
+        topicosList: z.array(z.string()),
+      }, {
+        required_error: "Selecione o tipo de laudo.",
+      })
+    ),
+    nroLaudo: z.coerce.number({
+      required_error: "Insira o número do laudo.",
+      invalid_type_error: "Insira o número do laudo.",
+    }).min(1, {
       message: "Insira o número do laudo.",
     }),
     datExame: z.string({
@@ -317,11 +325,11 @@ function EditLaudo() {
     },
   });
 
-  const selectedTipoLaudoId = form.watch("tiposLaudo.id");
+  const selectedTipoLaudo = form.watch("tiposLaudo");
 
   useEffect(() => {
-    if (selectedTipoLaudoId) {
-      api.get(`/Diagnostico/${selectedTipoLaudoId}`)
+    if (selectedTipoLaudo) {
+      api.get(`/Diagnostico/${selectedTipoLaudo.id}`)
         .then((response) => {
           setData(response.data);
         })
@@ -331,7 +339,7 @@ function EditLaudo() {
           });
         })
     }
-  }, [selectedTipoLaudoId]);
+  }, [selectedTipoLaudo]);
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     setLoading(true);
@@ -349,7 +357,7 @@ function EditLaudo() {
       medicoRequisitante: data.medicoRequisitante ? data.medicoRequisitante : null,
       datExame: data.datExame,
       desLaudo: descricaoLaudo ? descricaoLaudo : "",
-      exameId: parseInt(selectedTipoLaudoId),
+      exameId: parseInt(selectedTipoLaudo.id),
       nroLaudo: data.nroLaudo,
       idade: data.idade
     }
@@ -576,7 +584,15 @@ function EditLaudo() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Número de laudo</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full" {...field} />
+                            <Input
+                              type="number"
+                              className="pl-2 w-full uppercase"
+                              value={field.value ?? ""}
+                              onChange={(e) => {
+                                const raw = e.target.value;
+                                field.onChange(raw === "" ? undefined : raw);
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
