@@ -193,18 +193,24 @@ function EditLaudo() {
       })
   }, []);
 
-  const handleTipoLaudoChange = (value: string, fieldOnChange: (value: string) => void) => {
+  const handleTipoLaudoChange = (
+    value: string,
+    fieldOnChange: (value: any) => void
+  ) => {
     const selectedLaudo = tiposLaudo.find(item => item.id.toString() === value);
+
     if (selectedLaudo) {
       const htmlTopicos = selectedLaudo.topicosList
         .map(t => `<p>${t}</p><br /><br />`)
         .join('');
-
       setDescricaoLaudo(htmlTopicos);
+      fieldOnChange(selectedLaudo);
+    } else {
+      fieldOnChange(null);
+      setDescricaoLaudo("");
     }
-
-    fieldOnChange(value); // atualiza o form
   };
+
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -252,6 +258,7 @@ function EditLaudo() {
           position: "top-right",
         });
       })
+    setDescricaoLaudo(laudo.desLaudo);
   }, []);
 
   const FormSchema = z.object({
@@ -278,7 +285,10 @@ function EditLaudo() {
     nroLaudo: z.coerce.number().min(1, {
       message: "Insira o número do laudo.",
     }),
-    datExame: z.string().min(10, {
+    datExame: z.string({
+      required_error: "Insira a data do exame.",
+      invalid_type_error: "Data inválida.",
+    }).min(10, {
       message: "Insira a data do exame.",
     }),
     idade: z.string().nullable().optional(),
@@ -329,7 +339,7 @@ function EditLaudo() {
 
     const laudoData = {
       nomePaciente: data?.name ? data.name : "",
-      estadoCivil: data?.estadoCivil?.id ? data.estadoCivil?.descricao : null,
+      estadoCivil: data?.estadoCivil?.id ? data.estadoCivil?.descricao : selectedEstadoCivil,
       sexo: data?.sexo ? data.sexo : laudo.sexo,
       profissao: data?.profissao ? data.profissao : "",
       procedencia: data?.procedencia ? data.procedencia : "",
@@ -498,7 +508,7 @@ function EditLaudo() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Sexo</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -516,7 +526,7 @@ function EditLaudo() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Idade</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -532,7 +542,7 @@ function EditLaudo() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Profissão</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -548,7 +558,7 @@ function EditLaudo() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Procedência</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -566,7 +576,7 @@ function EditLaudo() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Número de laudo</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -608,7 +618,7 @@ function EditLaudo() {
                           <FormItem className='text-left'>
                             <FormLabel className='text-lg max-sm:text-sm'>Data da última menstruação</FormLabel>
                             <FormControl>
-                              <Input className="pl-2 w-full uppercase" {...field} />
+                              <Input className="pl-2 w-full" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -629,7 +639,7 @@ function EditLaudo() {
                           <FormControl>
                             <Select
                               onValueChange={(value) => handleTipoLaudoChange(value, field.onChange)}
-                              value={field.value?.toString() ?? ""}
+                              value={field.value?.id?.toString() ?? ""}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Selecione">
@@ -652,7 +662,6 @@ function EditLaudo() {
                         </FormItem>
                       )}
                     />
-
                   </div>
 
                   <div className="w-1/3">
@@ -663,7 +672,7 @@ function EditLaudo() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Médico requisitante</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -683,7 +692,7 @@ function EditLaudo() {
                       <FormItem className='text-left'>
                         <FormLabel className='text-lg'>Resumo Clínico</FormLabel>
                         <FormControl>
-                          <Textarea className="pl-2 w-full uppercase h-[200px]" {...field} />
+                          <Textarea className="pl-2 w-full h-[200px]" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

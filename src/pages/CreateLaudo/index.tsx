@@ -250,10 +250,18 @@ function RequestExaminations() {
     name: z.string().min(10, {
       message: "Insira o nome do paciente.",
     }),
-    estadoCivil: z.object({
-      id: z.number(),
-      descricao: z.string(),
-    }).optional(),
+    estadoCivil: z.preprocess(
+      (val) => {
+        if (val === "" || val === null || val === undefined) {
+          return null;
+        }
+        return val;
+      },
+      z.object({
+        id: z.number(),
+        descricao: z.string(),
+      }).nullable()
+    ),
     sexo: z.string().nullable().optional(),
     datNascimento: z.string().optional(),
     profissao: z.string().nullable().optional(),
