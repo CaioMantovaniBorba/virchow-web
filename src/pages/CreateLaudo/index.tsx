@@ -364,14 +364,14 @@ function RequestExaminations() {
               }
             })
             .catch(() => {
-              if (response.status === 409) {
-                return toast.error("Esse número de laudo já existe!");
-              }
               toast.error("Não foi possível gerar a impressão!");
             })
         }, 1000);
       })
-      .catch(() => {
+      .catch((error) => {
+        if (error.status === 409) {
+          return toast.error(error.response.data.error);
+        }
         toast.error("Não foi possível processar o laudo!");
       })
       .finally(() => {

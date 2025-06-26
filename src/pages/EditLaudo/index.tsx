@@ -386,11 +386,11 @@ function EditLaudo() {
           navigate("/impressoes");
         }, 1000);
       })
-      .catch((response) => {
-        if (response.status == 409) {
-          return toast.error("Esse número de laudo já existe!");
+      .catch((error) => {
+        if (error.status === 409) {
+          return toast.error(error.response.data.error);
         }
-        toast.error("Não foi possível atualizar o laudo!");
+        toast.error("Não foi possível processar o laudo!");
       })
       .finally(() => {
         setLoading(false);
