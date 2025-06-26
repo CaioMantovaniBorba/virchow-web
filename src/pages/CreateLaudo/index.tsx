@@ -364,7 +364,7 @@ function RequestExaminations() {
               }
             })
             .catch(() => {
-              if (response.status == 409) {
+              if (response.status === 409) {
                 return toast.error("Esse número de laudo já existe!");
               }
               toast.error("Não foi possível gerar a impressão!");
@@ -498,7 +498,7 @@ function RequestExaminations() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Sexo</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -516,7 +516,7 @@ function RequestExaminations() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Idade</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -532,7 +532,7 @@ function RequestExaminations() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Profissão</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -548,7 +548,7 @@ function RequestExaminations() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Procedência</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -568,7 +568,7 @@ function RequestExaminations() {
                           <FormControl>
                             <Input
                               type="number"
-                              className="pl-2 w-full uppercase"
+                              className="pl-2 w-full"
                               value={field.value ?? ""}
                               onChange={(e) => {
                                 const raw = e.target.value;
@@ -616,7 +616,7 @@ function RequestExaminations() {
                           <FormItem className='text-left'>
                             <FormLabel className='text-lg max-sm:text-sm'>Data da última menstruação</FormLabel>
                             <FormControl>
-                              <Input className="pl-2 w-full uppercase" {...field} />
+                              <Input className="pl-2 w-full" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -671,7 +671,7 @@ function RequestExaminations() {
                         <FormItem className='text-left'>
                           <FormLabel className='text-lg'>Médico requisitante</FormLabel>
                           <FormControl>
-                            <Input className="pl-2 w-full uppercase" {...field} />
+                            <Input className="pl-2 w-full" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -691,7 +691,7 @@ function RequestExaminations() {
                       <FormItem className='text-left'>
                         <FormLabel className='text-lg'>Resumo Clínico</FormLabel>
                         <FormControl>
-                          <Textarea className="pl-2 w-full uppercase h-[200px]" {...field} />
+                          <Textarea className="pl-2 w-full h-[200px]" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

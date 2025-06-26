@@ -103,6 +103,7 @@ function EditLaudo() {
   const [tiposLaudo, setTiposLaudo] = useState<LaudoType[]>([]);
   const [data, setData] = useState<DiagnosticoType[]>([]);
   const [estadoCivil, setEstadoCivil] = useState<EstadoCivilType[]>([]);
+  const [formInicializado, setFormInicializado] = useState(false);
 
   const patientString = localStorage.getItem("patient");
   const patient: PatientType = patientString ? JSON.parse(patientString) : null;
@@ -265,7 +266,7 @@ function EditLaudo() {
     name: z.string().min(10, {
       message: "Insira o nome do paciente.",
     }),
-    estadoCivil: z.object({
+    civilStatus: z.object({
       id: z.number(),
       descricao: z.string(),
     }).optional(),
@@ -306,11 +307,27 @@ function EditLaudo() {
     (item) => item.descricao === laudo.estadoCivil
   );
 
+  useEffect(() => {
+    if (!formInicializado && estadoCivil.length && laudo) {
+      const selectedEstadoCivil = estadoCivil.find(
+        (item) => item.descricao === laudo.estadoCivil
+      );
+
+      form.reset({
+        name: laudo.nomePaciente,
+        civilStatus: selectedEstadoCivil ?? undefined,
+      });
+
+      setFormInicializado(true);
+    }
+  }, [estadoCivil, laudo]);
+
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       name: laudo?.nomePaciente,
-      estadoCivil: selectedEstadoCivil ?? undefined,
+      civilStatus: selectedEstadoCivil ?? undefined,
       sexo: laudo?.sexo,
       profissao: laudo?.profissao,
       procedencia: laudo?.procedencia,
@@ -347,7 +364,7 @@ function EditLaudo() {
 
     const laudoData = {
       nomePaciente: data?.name ? data.name : "",
-      estadoCivil: data?.estadoCivil?.id ? data.estadoCivil?.descricao : selectedEstadoCivil,
+      estadoCivil: data?.civilStatus?.id ? data.civilStatus?.descricao : selectedEstadoCivil?.descricao,
       sexo: data?.sexo ? data.sexo : laudo.sexo,
       profissao: data?.profissao ? data.profissao : "",
       procedencia: data?.procedencia ? data.procedencia : "",
@@ -473,17 +490,22 @@ function EditLaudo() {
                   <div className="w-1/3">
                     <FormField
                       control={form.control}
-                      name="estadoCivil"
+                      name="civilStatus"
                       render={({ field }) => (
                         <FormItem className="text-left">
                           <FormLabel className="text-lg">Estado Civil</FormLabel>
                           <FormControl>
                             <Select
+                              value={field.value?.id?.toString() ?? ""}
                               onValueChange={(value) => {
                                 const selected = estadoCivil.find(item => item.id.toString() === value);
-                                if (selected) field.onChange(selected);
+                                console.log("Selecionado:", selected);
+                                if (selected) {
+                                  field.onChange(selected);
+                                } else {
+                                  field.onChange(undefined);
+                                }
                               }}
-                              value={field.value?.id?.toString() ?? ""}
                             >
                               <SelectTrigger>
                                 <SelectValue placeholder="Selecione">
