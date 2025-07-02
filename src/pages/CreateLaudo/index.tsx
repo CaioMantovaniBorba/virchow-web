@@ -607,23 +607,21 @@ function RequestExaminations() {
                     />
                   </div>
 
-                  {patient?.sexo === "F" &&
-                    <div className="w-1/3">
-                      <FormField
-                        control={form.control}
-                        name="datUltimaMenstruacao"
-                        render={({ field }) => (
-                          <FormItem className='text-left'>
-                            <FormLabel className='text-lg max-sm:text-sm'>Data da última menstruação</FormLabel>
-                            <FormControl>
-                              <Input className="pl-2 w-full" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  }
+                  <div className="w-1/3">
+                    <FormField
+                      control={form.control}
+                      name="datUltimaMenstruacao"
+                      render={({ field }) => (
+                        <FormItem className='text-left'>
+                          <FormLabel className='text-lg max-sm:text-sm'>Data da última menstruação</FormLabel>
+                          <FormControl>
+                            <Input className="pl-2 w-full" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
 
                 <div className="flex w-full space-x-8">
