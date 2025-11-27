@@ -410,7 +410,7 @@ function RequestExaminations() {
 
   useEffect(() => {
     calculateAge(patient?.datNascimento?.slice(0, 10));
-  }, [patient.datNascimento])
+  }, [patient?.datNascimento])
 
   return (
     <>
